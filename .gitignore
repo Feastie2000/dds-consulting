@@ -1,0 +1,20 @@
+# Windows
+Thumbs.db
+desktop.ini
+
+# Mac
+.DS_Store
+
+# VS Code
+.vscode/
+
+# Sensitive files
+*.env
+secrets.*
+
+# Logs
+*.log
+
+# Temp files
+*.tmp
+*.bak
