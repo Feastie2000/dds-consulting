@@ -1165,30 +1165,31 @@
         </div>
       </div>
     </div>
-    <div class="contact-form reveal">
+    <form class="contact-form reveal" name="contact" method="POST" netlify>
+	<input type="hidden" name="form-name" value="contact"/>
       <h3>Send a Message</h3>
       <p>I'll respond within one working day.</p>
       <div class="form-row">
         <div class="form-group">
           <label for="fname">First Name</label>
-          <input type="text" id="fname" placeholder="Margaret"/>
+          <input type="text" id="fname" name="first-name" placeholder="Margaret"/>
         </div>
         <div class="form-group">
           <label for="lname">Last Name</label>
-          <input type="text" id="lname" placeholder="Henderson"/>
+          <input type="text" id="lname" name="last-name" placeholder="Henderson"/>
         </div>
       </div>
       <div class="form-group">
         <label for="email">Email Address</label>
-        <input type="email" id="email" placeholder="you@email.com"/>
+        <input type="email" id="email" name="email" placeholder="you@email.com"/>
       </div>
 	  <div class="form-group">
 	    <label for="telephone">Telephone Number</label>
-	    <input type="tel" id="telephone" placeholder="+351 987 654 321"/>
+	    <input type="tel" id="telephone" name="telephone" placeholder="+351 987 654 321"/>
 	  </div>
       <div class="form-group">
         <label for="service">How Can I Help?</label>
-        <select id="service">
+        <select id="service" name="service">
           <option value="" disabled selected>Select a service…</option>
           <option>Medical Appointment</option>
           <option>Official / Legal Appointment</option>
@@ -1201,10 +1202,10 @@
       </div>
       <div class="form-group">
         <label for="message">Tell Me More</label>
-        <textarea id="message" placeholder="Give me a brief idea of what you need and when — I'll be in touch soon!"></textarea>
+        <textarea id="message" name="message" placeholder="Give me a brief idea of what you need and when — I'll be in touch soon!"></textarea>
       </div>
-      <button class="form-submit">Send Message 😊</button>
-    </div>
+      <button type="submit" class="form-submit">Send Message 😊</button>
+    </form>
   </div>
 </section>
 
