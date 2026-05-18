@@ -599,11 +599,22 @@
     .testi-header .section-tag { justify-content: center; }
     .testi-header .section-tag::before { display: none; }
     .testi-header .section-title { max-width: 100%; }
-    .testi-header .section-body { margin: 0 auto; text-align: left; max-width: 480px; }
 
-    .testi-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
+    /* Carousel wrapper */
+    .testi-carousel-wrap {
+      position: relative;
+    }
+
+    .testi-carousel {
+      overflow: hidden;
+      border-radius: 20px;
+    }
+
+    .testi-track {
+      display: flex;
+      gap: 24px;
+      transition: transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      will-change: transform;
     }
 
     .testi-card {
@@ -612,10 +623,69 @@
       padding: 2rem 1.8rem;
       border: 1.5px solid var(--line);
       transition: box-shadow .3s, transform .3s;
+      /* Show ~2.2 cards on desktop so user sees there's more */
+      flex: 0 0 calc(50% - 12px);
+      min-width: 0;
     }
+
+    @media (max-width: 900px) {
+      .testi-card { flex: 0 0 calc(80% - 12px); }
+    }
+    @media (max-width: 600px) {
+      .testi-card { flex: 0 0 calc(100% - 0px); }
+    }
+
     .testi-card:hover {
       box-shadow: 0 10px 32px rgba(0,0,0,.07);
       transform: translateY(-3px);
+    }
+
+    /* Controls */
+    .testi-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .testi-btn {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      border: 1.5px solid var(--line);
+      background: var(--white);
+      color: var(--ink);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s, border-color .2s, transform .2s;
+      flex-shrink: 0;
+    }
+    .testi-btn:hover {
+      background: var(--terracotta);
+      border-color: var(--terracotta);
+      color: var(--white);
+      transform: scale(1.08);
+    }
+
+    .testi-dots {
+      display: flex;
+      gap: .5rem;
+      align-items: center;
+    }
+
+    .testi-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      border: none;
+      background: var(--line);
+      cursor: pointer;
+      transition: background .3s, transform .3s;
+      padding: 0;
+    }
+    .testi-dot.active {
+      background: var(--terracotta);
+      transform: scale(1.35);
     }
 
     .testi-stars {
@@ -838,7 +908,7 @@
       #about { grid-template-columns: 1fr; }
       .about-float-card { right: 1rem; }
       .areas-header { grid-template-columns: 1fr; gap: 1rem; }
-      .testi-grid { grid-template-columns: 1fr; }
+      /* testi-grid removed — now a carousel */
       .contact-wrap { grid-template-columns: 1fr; }
       .form-row { grid-template-columns: 1fr; }
       footer { flex-direction: column; text-align: center; }
