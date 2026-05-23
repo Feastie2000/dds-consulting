@@ -1,20 +1,20 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --terracotta:   #c8653a;
-      --terra-lt:     #e0845a;
-      --terra-pale:   #f5e8e0;
-      --sage:         #5a7a5e;
-      --sage-lt:      #7a9e7e;
-      --sage-pale:    #eaf0ea;
-      --cream:        #faf7f2;
-      --white:        #ffffff;
-      --ink:          #1e1c1a;
-      --ink-soft:     #5a5550;
-      --ink-ghost:    #9e9890;
-      --line:         #e8e2d8;
-      --nav-h:        70px;
-    }
+	  --terracotta:   #0d4d4c;
+	  --terra-lt:     #1a6e6d;
+	  --terra-pale:   #e0eaea;
+	  --sage:         #093b3c;
+	  --sage-lt:      #8c9884;
+	  --sage-pale:    #e8edea;
+	  --cream:        #f4f6f4;
+	  --white:        #ffffff;
+	  --ink:          #071f1f;
+	  --ink-soft:     #3d5452;
+	  --ink-ghost:    #8c9884;
+	  --line:         #d4ddd6;
+	  --nav-h:        70px;
+	}
 
     html { scroll-behavior: smooth; }
 
@@ -108,8 +108,8 @@
 
     .hero-flag {
       display: inline-flex; align-items: center; gap: .6rem;
-      background: var(--terra-pale);
-      color: var(--terracotta);
+      background: rgba(183,164,95,.12);
+      color: #b7a45f;
       font-size: .75rem;
       font-weight: 600;
       letter-spacing: .1em;
@@ -124,7 +124,7 @@
     }
     .hero-flag-dot {
       width: 7px; height: 7px;
-      background: var(--terracotta);
+      background: #b7a45f;
       border-radius: 50%;
       animation: pulse 2s infinite;
     }
@@ -319,10 +319,10 @@
     .section-tag {
       display: inline-flex; align-items: center; gap: .6rem;
       font-size: .72rem;
-      font-weight: 700;
-      letter-spacing: .15em;
+      font-weight: 500;
+      letter-spacing: .2em;
       text-transform: uppercase;
-      color: var(--terracotta);
+      color: #b7a45f;
       margin-bottom: 1rem;
     }
     .section-tag::before {
