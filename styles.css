@@ -201,7 +201,7 @@
 
     .hero-right {
       position: relative;
-      background: linear-gradient(150deg, #e8d5c4 0%, #c9a882 50%, #a07850 100%);
+      background: linear-gradient(150deg, #1a6e6d 0%, #0d4d4c 50%, #093b3c 100%);
       display: flex; align-items: center; justify-content: center;
       overflow: hidden;
       opacity: 0;
@@ -340,7 +340,7 @@
       color: var(--ink);
       margin-bottom: 1.2rem;
     }
-    .section-title em { font-style: italic; color: var(--terracotta); }
+    .section-title em { font-style: italic; color: rgba(255,255,255,.5); }
 
     .section-body {
       font-size: 1rem;
@@ -425,7 +425,7 @@
     }
 
     .about-main-card {
-      background: linear-gradient(145deg, var(--terracotta), #a04828);
+      background: linear-gradient(145deg, #1a6e6d 0%, #0d4d4c 50%, #093b3c 100%);
       border-radius: 20px;
       padding: 3.5rem 2.5rem;
       text-align: center;
@@ -496,10 +496,10 @@
     }
 
     .about-sage-strip {
-      position: absolute;
-      top: -1rem; left: -1rem;
-      background: var(--sage-pale);
-      border: 1px solid var(--sage-lt);
+	  position: absolute;
+	  top: -1rem; left: -1rem;
+	  background: var(--white);
+	  border: 1px solid var(--line);
       border-radius: 12px;
       padding: .8rem 1.2rem;
       display: flex; align-items: center; gap: .6rem;
@@ -939,4 +939,13 @@
 .whatsapp-float:hover {
   transform: translateY(-3px) scale(1.05);
   box-shadow: 0 10px 28px rgba(37,211,102,.5);
+}
+
+.area-pin {
+  width: 8px;
+  height: 8px;
+  background: rgba(255,255,255,.6);
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
 }
