@@ -108,8 +108,8 @@
 
     .hero-flag {
       display: inline-flex; align-items: center; gap: .6rem;
-      background: rgba(183,164,95,.12);
-      color: #b7a45f;
+      background: var(--terra-pale);
+      color: var(--terra-lt);
       font-size: .75rem;
       font-weight: 600;
       letter-spacing: .1em;
@@ -124,7 +124,7 @@
     }
     .hero-flag-dot {
       width: 7px; height: 7px;
-      background: #b7a45f;
+      background: var(--terra-lt);
       border-radius: 50%;
       animation: pulse 2s infinite;
     }
@@ -322,7 +322,7 @@
       font-weight: 500;
       letter-spacing: .2em;
       text-transform: uppercase;
-      color: #b7a45f;
+      color: var(--terracotta);
       margin-bottom: 1rem;
     }
     .section-tag::before {
