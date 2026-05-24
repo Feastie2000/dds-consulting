@@ -947,3 +947,5 @@
 }
 
 #areas .section-title em { color: rgba(255,255,255,.55); }
+
+.hidden-field { display: none; }
