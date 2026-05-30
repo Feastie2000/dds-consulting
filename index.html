@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="html-root">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -11,30 +11,67 @@
   <meta name="robots" content="index, follow"/>
   <meta name="geo.region" content="PT"/>
   <meta name="geo.placename" content="Sertã, Central Portugal"/>
-
-   <!-- Open Graph / Facebook / WhatsApp sharing -->
+  <!-- Open Graph / Facebook / WhatsApp sharing -->
   <meta property="og:type" content="website"/>
   <meta property="og:url" content="https://dds-consulting.pt"/>
   <meta property="og:title" content="DDS Consulting — Your English Voice in Portugal"/>
   <meta property="og:description" content="Need help navigating life in Portugal? Debora provides friendly English language support for expats and tourists in Sertã and Central Portugal — from medical appointments to official paperwork."/>
   <meta property="og:image" content="https://dds-consulting.pt/og-image.jpg"/>
   <meta property="og:locale" content="en_GB"/>
-
   <!-- Twitter/X sharing -->
   <meta name="twitter:card" content="summary_large_image"/>
   <meta name="twitter:title" content="DDS Consulting — Your English Voice in Portugal"/>
   <meta name="twitter:description" content="Friendly English language support for expats and tourists in Sertã and Central Portugal."/>
   <meta name="twitter:image" content="https://dds-consulting.pt/og-image.jpg"/>
-
   <!-- Canonical URL -->
   <link rel="canonical" href="https://dds-consulting.pt"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Nunito:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  
   <!-- Google Search Console -->
   <meta name="google-site-verification" content="JJDs1xvYxXoWrPOrXPWV4-7FOUUJEZvUQoWNfXBrBas" />
+  <style>
+    /* Language Toggle */
+    .lang-toggle {
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+      background: rgba(13,77,76,.12);
+      border: 1.5px solid rgba(13,77,76,.2);
+      border-radius: 50px;
+      padding: .25rem .3rem;
+      margin-right: .8rem;
+    }
+    .lang-btn {
+      font-family: 'Nunito', sans-serif;
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .05em;
+      padding: .3rem .7rem;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      background: transparent;
+      color: var(--ink-soft);
+      transition: background .2s, color .2s;
+    }
+    .lang-btn.active {
+      background: var(--terracotta);
+      color: #fff;
+    }
+    .lang-btn:hover:not(.active) { color: var(--terracotta); }
+
+    /* Hide/show language content */
+    [data-en], [data-pt] { display: none; }
+    html[lang="en"] [data-en] { display: revert; }
+    html[lang="pt"] [data-pt] { display: revert; }
+
+    /* Inline spans inside elements */
+    span[data-en], span[data-pt] { display: inline; }
+    html[lang="en"] span[data-en] { display: inline; }
+    html[lang="pt"] span[data-pt] { display: inline; }
+  </style>
 </head>
 <body>
 
@@ -48,13 +85,17 @@
     </div>
   </a>
   <ul class="nav-links">
-    <li><a href="#services">Services</a></li>
-    <li><a href="#about">About</a></li>
-    <li><a href="#areas">Areas</a></li>
-    <li><a href="#testimonials">Clients</a></li>
-    <li><a href="#contact">Contact</a></li>
+    <li><a href="#services"><span data-en>Services</span><span data-pt>Serviços</span></a></li>
+    <li><a href="#about"><span data-en>About</span><span data-pt>Sobre</span></a></li>
+    <li><a href="#areas"><span data-en>Areas</span><span data-pt>Áreas</span></a></li>
+    <li><a href="#testimonials"><span data-en>Clients</span><span data-pt>Clientes</span></a></li>
+    <li><a href="#contact"><span data-en>Contact</span><span data-pt>Contacto</span></a></li>
   </ul>
-  <a class="nav-cta" href="#contact">Get in Touch</a>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btn-en" onclick="setLang('en')">🇬🇧 EN</button>
+    <button class="lang-btn" id="btn-pt" onclick="setLang('pt')">🇵🇹 PT</button>
+  </div>
+  <a class="nav-cta" href="#contact"><span data-en>Get in Touch</span><span data-pt>Contactar</span></a>
 </nav>
 
 <!-- HERO -->
@@ -62,45 +103,49 @@
   <div class="hero-left">
     <div class="hero-flag">
       <div class="hero-flag-dot"></div>
-      Based in Central Portugal
+      <span data-en>Based in Central Portugal</span>
+      <span data-pt>Baseada no Centro de Portugal</span>
     </div>
     <h1 class="hero-headline">
-      Your friendly<br>
-      <em>English voice</em><br>
-      in Portugal.
+      <span data-en>Your friendly<br><em>English voice</em><br>in Portugal.</span>
+      <span data-pt>A sua voz<br><em>amiga em inglês</em><br>em Portugal.</span>
     </h1>
     <p class="hero-sub">
-      Life in Portugal is wonderful — but navigating it in a new language can be daunting. Debora is here to help you every step of the way, from doctor's appointments to official paperwork and everything in between.
+      <span data-en>Life in Portugal is wonderful — but navigating it in a new language can be daunting. Debora is here to help you every step of the way, from doctor's appointments to official paperwork and everything in between.</span>
+      <span data-pt>A vida em Portugal é maravilhosa — mas navegar num novo idioma pode ser assustador. A Debora está aqui para ajudar em cada passo, desde consultas médicas a documentação oficial e tudo o que estiver pelo meio.</span>
     </p>
     <div class="hero-actions">
-      <a class="btn-primary" href="#contact">Book a Consultation</a>
-      <a class="btn-secondary" href="#services">See How I Can Help</a>
+      <a class="btn-primary" href="#contact"><span data-en>Book a Consultation</span><span data-pt>Agendar uma Consulta</span></a>
+      <a class="btn-secondary" href="#services"><span data-en>See How I Can Help</span><span data-pt>Como Posso Ajudar</span></a>
     </div>
   </div>
   <div class="hero-right">
     <div class="hero-card">
       <div class="hero-card-avatar">D</div>
       <div class="hero-card-name">Debora Da Silva</div>
-      <div class="hero-card-role">Your Personal Interpreter &amp; Liaison</div>
+      <div class="hero-card-role">
+        <span data-en>Your Personal Interpreter &amp; Liaison</span>
+        <span data-pt>Intérprete &amp; Consultora Pessoal</span>
+      </div>
       <div class="hero-card-langs">
         <div class="lang-tag">🇬🇧 English</div>
-        <div class="lang-tag">🇵🇹 Portuguese</div>
+        <div class="lang-tag">🇵🇹 Português</div>
       </div>
     </div>
     <div class="hero-stat-strip">
       <div class="hero-stat">
         <div class="hero-stat-num">50+</div>
-        <div class="hero-stat-label">Appointments</div>
+        <div class="hero-stat-label"><span data-en>Appointments</span><span data-pt>Consultas</span></div>
       </div>
       <div class="stat-divider"></div>
       <div class="hero-stat">
         <div class="hero-stat-num">2</div>
-        <div class="hero-stat-label">Languages</div>
+        <div class="hero-stat-label"><span data-en>Languages</span><span data-pt>Idiomas</span></div>
       </div>
       <div class="stat-divider"></div>
       <div class="hero-stat">
         <div class="hero-stat-num">5+</div>
-        <div class="hero-stat-label">Towns Covered</div>
+        <div class="hero-stat-label"><span data-en>Towns Covered</span><span data-pt>Concelhos</span></div>
       </div>
     </div>
   </div>
@@ -110,79 +155,101 @@
 <section id="services">
   <div class="services-intro">
     <div>
-      <p class="section-tag reveal">What I Do</p>
-      <h2 class="section-title reveal">I speak Portuguese<br><em>so you don't have to.</em></h2>
+      <p class="section-tag reveal"><span data-en>What I Do</span><span data-pt>O Que Faço</span></p>
+      <h2 class="section-title reveal">
+        <span data-en>I speak Portuguese<br><em>so you don't have to.</em></span>
+        <span data-pt>Falo Português<br><em>para que não tenha de o fazer.</em></span>
+      </h2>
     </div>
     <p class="section-body reveal">
-      Whether you need someone by your side at an important appointment, or just someone to call and sort something out for you — I've got it covered. No task is too big or too small.
+      <span data-en>Whether you need someone by your side at an important appointment, or just someone to call and sort something out for you — I've got it covered. No task is too big or too small.</span>
+      <span data-pt>Quer precise de alguém ao seu lado numa consulta importante, ou apenas de alguém para fazer uma chamada — estou aqui para isso. Nenhuma tarefa é demasiado grande ou pequena.</span>
     </p>
   </div>
   <div class="services-grid">
     <div class="service-card reveal">
       <span class="service-emoji">🏥</span>
-      <h3 class="service-name">Medical Interpretation</h3>
-      <p class="service-desc">I accompany you to GP visits, hospital appointments, specialist consultations and pharmacy visits — ensuring nothing gets lost in translation when it matters most.</p>
+      <h3 class="service-name"><span data-en>Medical Interpretation</span><span data-pt>Interpretação Médica</span></h3>
+      <p class="service-desc">
+        <span data-en>I accompany you to GP visits, hospital appointments, specialist consultations and pharmacy visits — ensuring nothing gets lost in translation when it matters most.</span>
+        <span data-pt>Acompanho-o/a a consultas de clínica geral, hospitais, especialistas e farmácias — garantindo que nada se perde na tradução quando mais importa.</span>
+      </p>
       <div class="service-examples">
-        <span class="example-tag">GP visits</span>
-        <span class="example-tag">Hospital</span>
-        <span class="example-tag">Specialists</span>
-        <span class="example-tag">Pharmacy</span>
+        <span class="example-tag"><span data-en>GP visits</span><span data-pt>Médico de família</span></span>
+        <span class="example-tag"><span data-en>Hospital</span><span data-pt>Hospital</span></span>
+        <span class="example-tag"><span data-en>Specialists</span><span data-pt>Especialistas</span></span>
+        <span class="example-tag"><span data-en>Pharmacy</span><span data-pt>Farmácia</span></span>
       </div>
     </div>
     <div class="service-card reveal">
       <span class="service-emoji">🏛️</span>
-      <h3 class="service-name">Official &amp; Legal Appointments</h3>
-      <p class="service-desc">Dealing with Finanças, Câmara Municipal, notaries, lawyers or banks? I'll be there with you to interpret and help you understand every document and decision.</p>
+      <h3 class="service-name"><span data-en>Official &amp; Legal Appointments</span><span data-pt>Consultas Oficiais &amp; Legais</span></h3>
+      <p class="service-desc">
+        <span data-en>Dealing with Finanças, Câmara Municipal, notaries, lawyers or banks? I'll be there with you to interpret and help you understand every document and decision.</span>
+        <span data-pt>A tratar de assuntos nas Finanças, Câmara Municipal, notários, advogados ou bancos? Estarei consigo para interpretar e ajudá-lo/a a compreender cada documento e decisão.</span>
+      </p>
       <div class="service-examples">
         <span class="example-tag">Câmara Municipal</span>
         <span class="example-tag">Finanças</span>
-        <span class="example-tag">Notary</span>
-        <span class="example-tag">Banking</span>
+        <span class="example-tag"><span data-en>Notary</span><span data-pt>Notário</span></span>
+        <span class="example-tag"><span data-en>Banking</span><span data-pt>Banca</span></span>
       </div>
     </div>
     <div class="service-card reveal">
       <span class="service-emoji">📞</span>
-      <h3 class="service-name">Phone Calls &amp; Liaison</h3>
-      <p class="service-desc">Sometimes you just need someone to make a call. I'll contact any Portuguese business, utility, office or service on your behalf — big or small, formal or casual.</p>
+      <h3 class="service-name"><span data-en>Phone Calls &amp; Liaison</span><span data-pt>Chamadas &amp; Mediação</span></h3>
+      <p class="service-desc">
+        <span data-en>Sometimes you just need someone to make a call. I'll contact any Portuguese business, utility, office or service on your behalf — big or small, formal or casual.</span>
+        <span data-pt>Às vezes só precisa de alguém para fazer uma chamada. Contacto qualquer empresa, serviço ou entidade portuguesa em seu nome — grande ou pequena, formal ou informal.</span>
+      </p>
       <div class="service-examples">
-        <span class="example-tag">Utilities</span>
-        <span class="example-tag">Bookings</span>
-        <span class="example-tag">Complaints</span>
-        <span class="example-tag">Enquiries</span>
+        <span class="example-tag"><span data-en>Utilities</span><span data-pt>Serviços</span></span>
+        <span class="example-tag"><span data-en>Bookings</span><span data-pt>Reservas</span></span>
+        <span class="example-tag"><span data-en>Complaints</span><span data-pt>Reclamações</span></span>
+        <span class="example-tag"><span data-en>Enquiries</span><span data-pt>Informações</span></span>
       </div>
     </div>
     <div class="service-card reveal">
       <span class="service-emoji">📋</span>
-      <h3 class="service-name">Document Explanation</h3>
-      <p class="service-desc">Received a letter or official notice and have no idea what it says or what to do next? I'll read it with you, explain in plain English what it means, what's being asked of you, and help you figure out the right next step — whether that's filling in a form, making a call, or seeking further advice. <em>Please note: this is not a certified or legal translation service.</em></p>
+      <h3 class="service-name"><span data-en>Document Explanation</span><span data-pt>Explicação de Documentos</span></h3>
+      <p class="service-desc">
+        <span data-en>Received a letter or official notice and have no idea what it says or what to do next? I'll read it with you, explain in plain English what it means, what's being asked of you, and help you figure out the right next step — whether that's filling in a form, making a call, or seeking further advice. <em>Please note: this is not a certified or legal translation service.</em></span>
+        <span data-pt>Recebeu uma carta ou aviso oficial e não sabe o que fazer? Leio-o consigo, explico em linguagem simples o que significa e ajudo a perceber o passo seguinte — seja preencher um formulário, fazer uma chamada ou procurar mais informação. <em>Nota: este não é um serviço de tradução certificada ou jurídica.</em></span>
+      </p>
       <div class="service-examples">
-        <span class="example-tag">Official letters</span>
-        <span class="example-tag">Tax notices</span>
-        <span class="example-tag">Council forms</span>
-        <span class="example-tag">Utility bills</span>
-        <span class="example-tag">What to do next</span>
+        <span class="example-tag"><span data-en>Official letters</span><span data-pt>Cartas oficiais</span></span>
+        <span class="example-tag"><span data-en>Tax notices</span><span data-pt>Avisos fiscais</span></span>
+        <span class="example-tag"><span data-en>Council forms</span><span data-pt>Formulários</span></span>
+        <span class="example-tag"><span data-en>Utility bills</span><span data-pt>Faturas</span></span>
+        <span class="example-tag"><span data-en>What to do next</span><span data-pt>Próximos passos</span></span>
       </div>
     </div>
     <div class="service-card reveal">
       <span class="service-emoji">🏠</span>
-      <h3 class="service-name">Relocation Support</h3>
-      <p class="service-desc">Just arrived or planning the move? I can help you get set up — from opening a bank account, to registering with your local Junta de Freguesia.</p>
+      <h3 class="service-name"><span data-en>Relocation Support</span><span data-pt>Apoio à Mudança</span></h3>
+      <p class="service-desc">
+        <span data-en>Just arrived or planning the move? I can help you get set up — from opening a bank account, to registering with your local Junta de Freguesia.</span>
+        <span data-pt>Acabou de chegar ou está a planear a mudança? Ajudo-o/a a instalar-se — desde abrir uma conta bancária até registar-se na Junta de Freguesia.</span>
+      </p>
       <div class="service-examples">
-        <span class="example-tag">NIF registration</span>
-        <span class="example-tag">Banking</span>
-        <span class="example-tag">Utilities</span>
-        <span class="example-tag">Local admin</span>
+        <span class="example-tag">NIF</span>
+        <span class="example-tag"><span data-en>Banking</span><span data-pt>Banco</span></span>
+        <span class="example-tag"><span data-en>Utilities</span><span data-pt>Serviços</span></span>
+        <span class="example-tag"><span data-en>Local admin</span><span data-pt>Administração local</span></span>
       </div>
     </div>
     <div class="service-card reveal">
       <span class="service-emoji">🍽️</span>
-      <h3 class="service-name">Everyday Assistance</h3>
-      <p class="service-desc">Need a table booked at a local restaurant? Want to arrange a tradesperson, or simply need someone to help at the market? I'm happy to help with the everyday stuff too.</p>
+      <h3 class="service-name"><span data-en>Everyday Assistance</span><span data-pt>Apoio do Dia a Dia</span></h3>
+      <p class="service-desc">
+        <span data-en>Need a table booked at a local restaurant? Want to arrange a tradesperson, or simply need someone to help at the market? I'm happy to help with the everyday stuff too.</span>
+        <span data-pt>Precisa de reservar uma mesa num restaurante? Quer contratar um profissional ou simplesmente precisa de ajuda no mercado? Estou disponível para as coisas do dia a dia também.</span>
+      </p>
       <div class="service-examples">
-        <span class="example-tag">Restaurants</span>
-        <span class="example-tag">Tradespeople</span>
-        <span class="example-tag">Shopping</span>
-        <span class="example-tag">Events</span>
+        <span class="example-tag"><span data-en>Restaurants</span><span data-pt>Restaurantes</span></span>
+        <span class="example-tag"><span data-en>Tradespeople</span><span data-pt>Profissionais</span></span>
+        <span class="example-tag"><span data-en>Shopping</span><span data-pt>Compras</span></span>
+        <span class="example-tag"><span data-en>Events</span><span data-pt>Eventos</span></span>
       </div>
     </div>
   </div>
@@ -194,39 +261,58 @@
     <div class="about-main-card">
       <div class="about-avatar">D</div>
       <div class="about-card-name">Debora Da Silva</div>
-      <div class="about-card-title">Interpreter &amp; Expat Consultant</div>
+      <div class="about-card-title">
+        <span data-en>Interpreter &amp; Expat Consultant</span>
+        <span data-pt>Intérprete &amp; Consultora para Expatriados</span>
+      </div>
     </div>
     <div class="about-float-card">
       <div class="about-float-num">🇵🇹 🇬🇧</div>
-      <div class="about-float-label">Fluent in both cultures</div>
+      <div class="about-float-label">
+        <span data-en>Fluent in both cultures</span>
+        <span data-pt>Fluente em ambas as culturas</span>
+      </div>
     </div>
   </div>
   <div class="about-content">
-    <p class="section-tag reveal">About Debora</p>
-    <h2 class="section-title reveal">A local who understands<br><em>your world.</em></h2>
+    <p class="section-tag reveal"><span data-en>About Debora</span><span data-pt>Sobre a Debora</span></p>
+    <h2 class="section-title reveal">
+      <span data-en>A local who understands<br><em>your world.</em></span>
+      <span data-pt>Uma local que compreende<br><em>o seu mundo.</em></span>
+    </h2>
     <p class="about-intro reveal">
-      I'm Debora — a native Portuguese speaker based in Central Portugal with a deep understanding of both cultures. I know how overwhelming it can feel to navigate a new country, especially when the language is a barrier. That's why I started DDS Consulting: to be the friendly, reliable bridge between you and life in Portugal.
+      <span data-en>I'm Debora — a native Portuguese speaker based in Central Portugal with a deep understanding of both cultures. I know how overwhelming it can feel to navigate a new country, especially when the language is a barrier. That's why I started DDS Consulting: to be the friendly, reliable bridge between you and life in Portugal.</span>
+      <span data-pt>Sou a Debora — falante nativa de português, baseada no Centro de Portugal, com um profundo conhecimento de ambas as culturas. Sei como pode ser difícil navegar num novo país, especialmente quando o idioma é uma barreira. Foi por isso que criei a DDS Consulting: para ser a ponte amigável e de confiança entre si e a vida em Portugal.</span>
     </p>
     <div class="about-pillars">
       <div class="pillar reveal">
         <div class="pillar-icon">💛</div>
         <div class="pillar-text">
-          <strong>Genuinely Personal Service</strong>
-          <p>It's just me — which means you always deal with the same person who knows your situation. No call centres, no strangers.</p>
+          <strong><span data-en>Genuinely Personal Service</span><span data-pt>Serviço Genuinamente Pessoal</span></strong>
+          <p>
+            <span data-en>It's just me — which means you always deal with the same person who knows your situation. No call centres, no strangers.</span>
+            <span data-pt>Sou só eu — o que significa que trata sempre com a mesma pessoa que conhece a sua situação. Sem centros de atendimento, sem estranhos.</span>
+          </p>
         </div>
       </div>
       <div class="pillar reveal">
         <div class="pillar-icon">🌍</div>
         <div class="pillar-text">
-          <strong>Two Cultures, One Conversation</strong>
-          <p>Being fluent in both English and Portuguese means I don't just translate words — I translate context, tone, and meaning.</p>
+          <strong><span data-en>Two Cultures, One Conversation</span><span data-pt>Duas Culturas, Uma Conversa</span></strong>
+          <p>
+            <span data-en>Being fluent in both English and Portuguese means I don't just translate words — I translate context, tone, and meaning.</span>
+            <span data-pt>Ser fluente em inglês e português significa que não traduzo apenas palavras — traduzo contexto, tom e significado.</span>
+          </p>
         </div>
       </div>
       <div class="pillar reveal">
         <div class="pillar-icon">🔒</div>
         <div class="pillar-text">
-          <strong>Discreet &amp; Trustworthy</strong>
-          <p>Your personal matters stay personal. Whether it's a medical issue or a financial appointment, I treat everything with full confidentiality.</p>
+          <strong><span data-en>Discreet &amp; Trustworthy</span><span data-pt>Discreta &amp; De Confiança</span></strong>
+          <p>
+            <span data-en>Your personal matters stay personal. Whether it's a medical issue or a financial appointment, I treat everything with full confidentiality.</span>
+            <span data-pt>Os seus assuntos pessoais ficam pessoais. Seja uma questão médica ou uma consulta financeira, trato tudo com total confidencialidade.</span>
+          </p>
         </div>
       </div>
     </div>
@@ -237,11 +323,12 @@
 <section id="areas">
   <div class="areas-header">
     <div>
-      <p class="section-tag reveal">Where I Work</p>
-      <h2 class="section-title reveal">Covering <em>Central Portugal</em></h2>
+      <p class="section-tag reveal"><span data-en>Where I Work</span><span data-pt>Onde Trabalho</span></p>
+      <h2 class="section-title reveal"><span data-en>Covering <em>Central Portugal</em></span><span data-pt>A cobrir <em>o Centro de Portugal</em></span></h2>
     </div>
     <p class="section-body reveal">
-      I'm based in Central Portugal and travel to clients across the region. Not sure if I cover your area? Just ask — I'm always happy to discuss travel options for your appointment.
+      <span data-en>I'm based in Central Portugal and travel to clients across the region. Not sure if I cover your area? Just ask — I'm always happy to discuss travel options for your appointment.</span>
+      <span data-pt>Estou baseada no Centro de Portugal e desloco-me a clientes em toda a região. Não tem a certeza se cubro a sua área? Pergunte — estou sempre disponível para discutir opções de deslocação.</span>
     </p>
   </div>
   <div class="areas-grid">
@@ -249,19 +336,18 @@
     <div class="area-chip reveal"><span class="area-pin"></span> Tomar</div>
     <div class="area-chip reveal"><span class="area-pin"></span> Sertã</div>
     <div class="area-chip reveal"><span class="area-pin"></span> Abrantes</div>
-    <div class="area-chip reveal"><span class="area-pin"></span> &amp; surrounding villages — just ask!</div>
+    <div class="area-chip reveal"><span class="area-pin"></span> <span data-en>&amp; surrounding villages — just ask!</span><span data-pt>&amp; aldeias circundantes — pergunte!</span></div>
   </div>
 </section>
 
 <!-- TESTIMONIALS -->
 <section id="testimonials">
   <div class="testi-header">
-    <p class="section-tag">Happy Clients</p>
-    <h2 class="section-title">What expats are <em>saying.</em></h2>
+    <p class="section-tag"><span data-en>Happy Clients</span><span data-pt>Clientes Satisfeitos</span></p>
+    <h2 class="section-title"><span data-en>What expats are <em>saying.</em></span><span data-pt>O que os expatriados <em>dizem.</em></span></h2>
   </div>
   <div class="testi-carousel-wrap">
     <div class="testi-carousel" id="testiCarousel">
-      <!-- Track holds two sets of cards for seamless looping -->
       <div class="testi-track" id="testiTrack">
         <div class="testi-card">
           <div class="testi-stars">★★★★★</div>
@@ -320,7 +406,6 @@
         </div>
       </div>
     </div>
-    <!-- Prev / Next controls -->
     <div class="testi-controls">
       <button class="testi-btn" id="testiPrev" aria-label="Previous">&#8592;</button>
       <div class="testi-dots" id="testiDots"></div>
@@ -333,10 +418,14 @@
 <section id="contact">
   <div class="contact-wrap">
     <div class="contact-info">
-      <p class="section-tag reveal">Get in Touch</p>
-      <h2 class="section-title reveal">Let's make<br><em>life easier.</em></h2>
+      <p class="section-tag reveal"><span data-en>Get in Touch</span><span data-pt>Entre em Contacto</span></p>
+      <h2 class="section-title reveal">
+        <span data-en>Let's make<br><em>life easier.</em></span>
+        <span data-pt>Vamos tornar<br><em>a vida mais fácil.</em></span>
+      </h2>
       <p class="section-body reveal">
-        Have an appointment coming up, or just moved and don't know where to start? Drop me a message and I'll get back to you quickly. No question is too small.
+        <span data-en>Have an appointment coming up, or just moved and don't know where to start? Drop me a message and I'll get back to you quickly. No question is too small.</span>
+        <span data-pt>Tem uma consulta próxima, ou mudou-se recentemente e não sabe por onde começar? Envie-me uma mensagem e responderei rapidamente. Nenhuma questão é pequena demais.</span>
       </p>
       <div class="contact-items">
         <div class="contact-item reveal">
@@ -349,69 +438,69 @@
         <div class="contact-item reveal">
           <div class="contact-item-icon">📱</div>
           <div>
-            <div class="contact-item-label">WhatsApp / Phone</div>
+            <div class="contact-item-label">WhatsApp / <span data-en>Phone</span><span data-pt>Telefone</span></div>
             <div class="contact-item-value">+351 912 173 159</div>
           </div>
         </div>
         <div class="contact-item reveal">
           <div class="contact-item-icon">📍</div>
           <div>
-            <div class="contact-item-label">Based In</div>
-            <div class="contact-item-value">Central Portugal<br>Serving the wider region</div>
+            <div class="contact-item-label"><span data-en>Based In</span><span data-pt>Localização</span></div>
+            <div class="contact-item-value"><span data-en>Central Portugal<br>Serving the wider region</span><span data-pt>Centro de Portugal<br>A servir toda a região</span></div>
           </div>
         </div>
         <div class="contact-item reveal">
           <div class="contact-item-icon">🕐</div>
           <div>
-            <div class="contact-item-label">Availability</div>
-            <div class="contact-item-value">Monday – Saturday, 9am – 6pm</div>
+            <div class="contact-item-label"><span data-en>Availability</span><span data-pt>Disponibilidade</span></div>
+            <div class="contact-item-value"><span data-en>Monday – Saturday, 9am – 6pm</span><span data-pt>Segunda – Sábado, 9h – 18h</span></div>
           </div>
         </div>
       </div>
     </div>
     <form class="contact-form reveal" name="contact" method="POST" netlify data-netlify-honeypot="bot-field">
-	<input type="hidden" name="form-name" value="contact"/>
-      <h3>Send a Message</h3>
-      <p>I'll respond within one working day.</p>
+      <input type="hidden" name="form-name" value="contact"/>
+      <h3><span data-en>Send a Message</span><span data-pt>Enviar uma Mensagem</span></h3>
+      <p><span data-en>I'll respond within one working day.</span><span data-pt>Responderei dentro de um dia útil.</span></p>
       <div class="form-row">
         <div class="form-group">
-          <label for="fname">First Name</label>
+          <label for="fname"><span data-en>First Name</span><span data-pt>Primeiro Nome</span></label>
           <input type="text" id="fname" name="first-name" placeholder="Margaret"/>
         </div>
         <div class="form-group">
-          <label for="lname">Last Name</label>
+          <label for="lname"><span data-en>Last Name</span><span data-pt>Apelido</span></label>
           <input type="text" id="lname" name="last-name" placeholder="Henderson"/>
         </div>
       </div>
       <div class="form-group">
-        <label for="email">Email Address</label>
+        <label for="email"><span data-en>Email Address</span><span data-pt>Endereço de Email</span></label>
         <input type="email" id="email" name="email" placeholder="you@email.com"/>
       </div>
-	  <div class="form-group">
-	    <label for="telephone">Telephone Number</label>
-	    <input type="tel" id="telephone" name="telephone" placeholder="+351 987 654 321"/>
-	  </div>
       <div class="form-group">
-        <label for="service">How Can I Help?</label>
+        <label for="telephone"><span data-en>Telephone Number</span><span data-pt>Número de Telefone</span></label>
+        <input type="tel" id="telephone" name="telephone" placeholder="+351 987 654 321"/>
+      </div>
+      <div class="form-group">
+        <label for="service"><span data-en>How Can I Help?</span><span data-pt>Como Posso Ajudar?</span></label>
         <select id="service" name="service">
-          <option value="" disabled selected>Select a service…</option>
-          <option>Medical Appointment</option>
-          <option>Official / Legal Appointment</option>
-          <option>Phone Call / Liaison</option>
-          <option>Document Translation</option>
-          <option>Relocation Support</option>
-          <option>Everyday Assistance</option>
-          <option>Something Else</option>
+          <option value="" disabled selected><span data-en>Select a service…</span><span data-pt>Selecione um serviço…</span></option>
+          <option><span data-en>Medical Appointment</span><span data-pt>Consulta Médica</span></option>
+          <option><span data-en>Official / Legal Appointment</span><span data-pt>Consulta Oficial / Legal</span></option>
+          <option><span data-en>Phone Call / Liaison</span><span data-pt>Chamada Telefónica / Mediação</span></option>
+          <option><span data-en>Document Translation</span><span data-pt>Explicação de Documentos</span></option>
+          <option><span data-en>Relocation Support</span><span data-pt>Apoio à Mudança</span></option>
+          <option><span data-en>Everyday Assistance</span><span data-pt>Apoio do Dia a Dia</span></option>
+          <option><span data-en>Something Else</span><span data-pt>Outro</span></option>
         </select>
       </div>
       <div class="form-group">
-        <label for="message">Tell Me More</label>
+        <label for="message"><span data-en>Tell Me More</span><span data-pt>Conte-me Mais</span></label>
         <textarea id="message" name="message" placeholder="Give me a brief idea of what you need and when — I'll be in touch soon!"></textarea>
       </div>
-		<p class="hidden-field">
-		  <label>Don't fill this out: <input name="bot-field"></label>	
-		</p>
-      <button type="submit" class="form-submit">Send Message 😊</button>
+      <p class="hidden-field">
+        <label>Don't fill this out: <input name="bot-field"></label>
+      </p>
+      <button type="submit" class="form-submit"><span data-en>Send Message 😊</span><span data-pt>Enviar Mensagem 😊</span></button>
     </form>
   </div>
 </section>
@@ -422,11 +511,26 @@
     <div class="footer-logo-mark">D</div>
     <div class="footer-logo-text">DDS Consulting</div>
   </div>
-  <div class="footer-tagline">Your English voice in Portugal 🇵🇹</div>
+  <div class="footer-tagline"><span data-en>Your English voice in Portugal 🇵🇹</span><span data-pt>A sua voz em inglês em Portugal 🇵🇹</span></div>
   <div class="footer-copy">© 2026 DDS Consulting · Debora Da Silva · Central Portugal</div>
 </footer>
 
 <script src="scripts.js"></script>
+
+<!-- Language Toggle Script -->
+<script>
+  function setLang(lang) {
+    document.getElementById('html-root').lang = lang;
+    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+    document.getElementById('btn-pt').classList.toggle('active', lang === 'pt');
+    localStorage.setItem('dds-lang', lang);
+  }
+
+  // On load, restore saved preference
+  const savedLang = localStorage.getItem('dds-lang') || 'en';
+  setLang(savedLang);
+</script>
+
 <!-- WhatsApp Floating Button -->
 <a href="https://wa.me/351912173159" target="_blank" rel="noopener noreferrer" class="whatsapp-float" aria-label="Chat with Debora on WhatsApp">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="30px" height="30px">
