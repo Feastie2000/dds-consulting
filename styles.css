@@ -973,9 +973,9 @@
   color: var(--ink-soft);
   transition: background .2s, color .2s;
 }
-.lang-btn .flag {
-  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
-  font-size: 1rem;
+.lang-btn img {
+  vertical-align: middle;
+  border-radius: 2px;
 }
 .lang-btn.active {
   background: var(--terracotta);
