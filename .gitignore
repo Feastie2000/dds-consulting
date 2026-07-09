@@ -18,3 +18,11 @@ secrets.*
 # Temp files
 *.tmp
 *.bak
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Node modules (if you ever add any)
+node_modules/
