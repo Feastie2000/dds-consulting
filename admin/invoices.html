@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DDS Consulting — Invoices</title>
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal:      #0d4d4c;
+      --teal-lt:   #1a6e6d;
+      --teal-pale: #e0eaea;
+      --cream:     #f4f6f4;
+      --white:     #ffffff;
+      --ink:       #071f1f;
+      --ink-soft:  #3d5452;
+      --ink-ghost: #8c9884;
+      --line:      #d4ddd6;
+      --red:       #c0392b;
+      --red-pale:  #fdecea;
+      --green:     #27ae60;
+      --amber:     #f39c12;
+      --sidebar-w: 240px;
+    }
+
+    body { font-family: 'Segoe UI', sans-serif; background: var(--cream); color: var(--ink); display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { width: var(--sidebar-w); background: var(--teal); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 100; }
+    .sidebar-logo { display: flex; align-items: center; gap: .8rem; padding: 1.5rem 1.2rem; border-bottom: 1px solid rgba(255,255,255,.1); }
+    .sidebar-logo img { width: 40px; height: 40px; border-radius: 8px; }
+    .sidebar-logo-text { font-size: .95rem; font-weight: 700; color: #fff; line-height: 1.2; }
+    .sidebar-logo-sub { font-size: .7rem; color: rgba(255,255,255,.5); }
+    .sidebar-nav { flex: 1; padding: 1.2rem 0; }
+    .nav-label { font-size: .65rem; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; color: rgba(255,255,255,.35); padding: .8rem 1.2rem .4rem; }
+    .nav-item { display: flex; align-items: center; gap: .8rem; padding: .75rem 1.2rem; color: rgba(255,255,255,.7); text-decoration: none; font-size: .88rem; font-weight: 500; transition: background .2s, color .2s; border-left: 3px solid transparent; }
+    .nav-item:hover { background: rgba(255,255,255,.08); color: #fff; }
+    .nav-item.active { background: rgba(255,255,255,.12); color: #fff; border-left-color: #fff; }
+    .nav-item .icon { font-size: 1.1rem; width: 20px; text-align: center; }
+    .sidebar-footer { padding: 1.2rem; border-top: 1px solid rgba(255,255,255,.1); }
+    .user-email { font-size: .82rem; color: rgba(255,255,255,.8); font-weight: 500; display: block; margin-bottom: .6rem; }
+    .logout-btn { display: block; width: 100%; padding: .6rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.7); border: 1px solid rgba(255,255,255,.15); border-radius: 8px; font-size: .82rem; cursor: pointer; transition: background .2s; text-align: center; }
+    .logout-btn:hover { background: rgba(255,255,255,.2); color: #fff; }
+
+    /* ── MAIN ── */
+    .main { margin-left: var(--sidebar-w); flex: 1; padding: 2rem; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
+    .page-title { font-size: 1.6rem; font-weight: 700; color: var(--ink); }
+    .page-sub { font-size: .85rem; color: var(--ink-ghost); margin-top: .3rem; }
+
+    /* ── STATS ── */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { background: var(--white); border-radius: 12px; padding: 1.2rem 1.5rem; border: 1.5px solid var(--line); }
+    .stat-label { font-size: .72rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-ghost); margin-bottom: .4rem; }
+    .stat-value { font-size: 1.6rem; font-weight: 700; color: var(--teal); }
+    .stat-card.green .stat-value { color: var(--green); }
+    .stat-card.amber .stat-value { color: var(--amber); }
+    .stat-card.red .stat-value { color: var(--red); }
+
+    /* ── BUTTONS ── */
+    .btn { display: inline-flex; align-items: center; gap: .4rem; padding: .65rem 1.3rem; border-radius: 8px; font-size: .85rem; font-weight: 600; cursor: pointer; border: none; transition: background .2s, transform .2s; }
+    .btn-primary { background: var(--teal); color: #fff; }
+    .btn-primary:hover { background: var(--teal-lt); transform: translateY(-1px); }
+    .btn-sm { padding: .4rem .8rem; font-size: .78rem; border-radius: 6px; }
+    .btn-outline { background: transparent; border: 1.5px solid var(--line); color: var(--ink-soft); }
+    .btn-outline:hover { border-color: var(--teal); color: var(--teal); }
+    .btn-danger { background: var(--red-pale); color: var(--red); border: 1px solid rgba(192,57,43,.2); }
+    .btn-danger:hover { background: var(--red); color: #fff; }
+    .btn-success { background: rgba(39,174,96,.1); color: var(--green); border: 1px solid rgba(39,174,96,.2); }
+    .btn-success:hover { background: var(--green); color: #fff; }
+    .btn-amber { background: rgba(243,156,18,.1); color: var(--amber); border: 1px solid rgba(243,156,18,.2); }
+    .btn-amber:hover { background: var(--amber); color: #fff; }
+
+    /* ── TOOLBAR ── */
+    .toolbar { display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .filter-tabs { display: flex; gap: .4rem; }
+    .filter-tab { padding: .4rem 1rem; border-radius: 6px; font-size: .8rem; font-weight: 600; cursor: pointer; border: 1.5px solid var(--line); background: var(--white); color: var(--ink-soft); transition: all .2s; }
+    .filter-tab.active { background: var(--teal); color: #fff; border-color: var(--teal); }
+
+    /* ── TABLE ── */
+    .card { background: var(--white); border-radius: 14px; border: 1.5px solid var(--line); overflow: hidden; }
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th { font-size: .72rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-ghost); padding: .9rem 1.2rem; text-align: left; border-bottom: 1px solid var(--line); background: var(--cream); }
+    .data-table td { padding: 1rem 1.2rem; font-size: .88rem; color: var(--ink-soft); border-bottom: 1px solid var(--line); vertical-align: middle; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: #f8fafa; }
+    .inv-number { font-weight: 700; color: var(--ink); font-family: monospace; font-size: .9rem; }
+    .inv-date { font-size: .75rem; color: var(--ink-ghost); margin-top: .2rem; }
+    .actions { display: flex; gap: .4rem; flex-wrap: wrap; }
+    .badge { display: inline-block; padding: .25rem .7rem; border-radius: 50px; font-size: .72rem; font-weight: 600; }
+    .badge-green { background: rgba(39,174,96,.1); color: var(--green); }
+    .badge-amber { background: rgba(243,156,18,.1); color: var(--amber); }
+    .badge-teal { background: var(--teal-pale); color: var(--teal); }
+    .empty-state { text-align: center; padding: 3rem; color: var(--ink-ghost); }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .loading { text-align: center; padding: 2rem; color: var(--ink-ghost); }
+
+    /* ── MODAL ── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 200; display: none; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--white); border-radius: 16px; width: min(700px, 95vw); max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.2); }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 1.5rem; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--white); z-index: 1; }
+    .modal-title { font-size: 1.1rem; font-weight: 700; color: var(--ink); }
+    .modal-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--ink-ghost); }
+    .modal-close:hover { color: var(--ink); }
+    .modal-body { padding: 1.5rem; }
+    .modal-footer { padding: 1.2rem 1.5rem; border-top: 1px solid var(--line); display: flex; gap: .8rem; justify-content: flex-end; }
+
+    /* ── FORM ── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: .4rem; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label { font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-ghost); }
+    .form-group input, .form-group select, .form-group textarea {
+      font-family: 'Segoe UI', sans-serif; font-size: .9rem; color: var(--ink);
+      background: var(--cream); border: 1.5px solid var(--line); border-radius: 8px;
+      padding: .7rem .9rem; outline: none; transition: border-color .2s;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: var(--teal); }
+    .form-section { font-size: .8rem; font-weight: 700; color: var(--teal); text-transform: uppercase; letter-spacing: .1em; margin: 1rem 0 .4rem; padding-bottom: .4rem; border-bottom: 1px solid var(--line); grid-column: 1 / -1; }
+
+    /* ── APPOINTMENT SELECTOR ── */
+    .appt-selector { grid-column: 1 / -1; }
+    .appt-list { border: 1.5px solid var(--line); border-radius: 8px; max-height: 200px; overflow-y: auto; background: var(--cream); }
+    .appt-item { display: flex; align-items: center; gap: .8rem; padding: .7rem 1rem; border-bottom: 1px solid var(--line); cursor: pointer; transition: background .15s; }
+    .appt-item:last-child { border-bottom: none; }
+    .appt-item:hover { background: var(--teal-pale); }
+    .appt-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--teal); flex-shrink: 0; }
+    .appt-item-info { flex: 1; font-size: .85rem; }
+    .appt-item-name { font-weight: 600; color: var(--ink); }
+    .appt-item-detail { font-size: .75rem; color: var(--ink-ghost); }
+    .appt-item-charge { font-weight: 700; color: var(--teal); font-size: .88rem; }
+
+    /* ── INVOICE TOTAL ── */
+    .invoice-summary {
+      grid-column: 1 / -1;
+      background: var(--teal);
+      color: #fff;
+      border-radius: 10px;
+      padding: 1.2rem 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 1rem;
+      align-items: center;
+    }
+    .inv-sum-label { font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.6); margin-bottom: .2rem; }
+    .inv-sum-value { font-size: 1.1rem; font-weight: 700; }
+    .inv-sum-total { font-size: 1.4rem; font-weight: 700; }
+
+    /* ── PDF PREVIEW ── */
+    .pdf-preview {
+      background: var(--white);
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      padding: 2.5rem;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .pdf-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2.5rem; }
+    .pdf-logo-area img { width: 60px; height: 60px; border-radius: 10px; }
+    .pdf-company { font-size: .85rem; color: var(--ink-soft); margin-top: .5rem; }
+    .pdf-invoice-label { font-size: 2rem; font-weight: 700; color: var(--teal); }
+    .pdf-invoice-num { font-size: 1rem; color: var(--ink-ghost); font-family: monospace; }
+    .pdf-to { margin-bottom: 2rem; }
+    .pdf-label { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-ghost); margin-bottom: .4rem; }
+    .pdf-client-name { font-size: 1.1rem; font-weight: 700; color: var(--ink); }
+    .pdf-dates { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; padding: 1rem; background: var(--cream); border-radius: 8px; }
+    .pdf-date-label { font-size: .72rem; color: var(--ink-ghost); margin-bottom: .2rem; }
+    .pdf-date-val { font-size: .9rem; font-weight: 600; color: var(--ink); }
+    .pdf-items { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+    .pdf-items th { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-ghost); padding: .6rem .8rem; text-align: left; border-bottom: 2px solid var(--line); }
+    .pdf-items td { padding: .8rem; font-size: .88rem; color: var(--ink-soft); border-bottom: 1px solid var(--line); }
+    .pdf-items tr:last-child td { border-bottom: none; }
+    .pdf-totals { margin-left: auto; width: 260px; }
+    .pdf-total-row { display: flex; justify-content: space-between; padding: .4rem 0; font-size: .88rem; color: var(--ink-soft); }
+    .pdf-total-final { display: flex; justify-content: space-between; padding: .8rem; background: var(--teal); color: #fff; border-radius: 8px; font-weight: 700; font-size: 1rem; margin-top: .5rem; }
+    .pdf-footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: .78rem; color: var(--ink-ghost); text-align: center; }
+
+    /* ── CONFIRM MODAL ── */
+    .confirm-modal { background: var(--white); border-radius: 16px; width: min(400px, 95vw); padding: 2rem; box-shadow: 0 20px 60px rgba(0,0,0,.2); text-align: center; }
+    .confirm-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .confirm-title { font-size: 1.1rem; font-weight: 700; color: var(--ink); margin-bottom: .6rem; }
+    .confirm-text { font-size: .88rem; color: var(--ink-soft); line-height: 1.6; margin-bottom: 1.5rem; }
+    .confirm-actions { display: flex; gap: .8rem; justify-content: center; }
+
+    @media print {
+      .sidebar, .main > *:not(.print-area) { display: none !important; }
+      .main { margin: 0; padding: 0; }
+      .print-area { display: block !important; }
+      .pdf-preview { border: none; padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <img src="../dds-logo-clean.png" alt="DDS"/>
+    <div>
+      <div class="sidebar-logo-text">DDS Consulting</div>
+      <div class="sidebar-logo-sub">Admin Portal</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a href="dashboard.html" class="nav-item"><span class="icon">📊</span> Dashboard</a>
+    <a href="clients.html" class="nav-item"><span class="icon">👥</span> Clients</a>
+    <a href="appointments.html" class="nav-item"><span class="icon">📅</span> Appointments</a>
+    <div class="nav-label">Finance</div>
+    <a href="invoices.html" class="nav-item active"><span class="icon">📋</span> Invoices</a>
+    <a href="activity.html" class="nav-item"><span class="icon">⏱</span> Activity Log</a>
+    <div class="nav-label">Site</div>
+    <a href="/" class="nav-item"><span class="icon">🌐</span> View Website</a>
+  </nav>
+  <div class="sidebar-footer">
+    <span class="user-email" id="userEmail">Loading...</span>
+    <button class="logout-btn" onclick="handleLogout()">Sign Out</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Invoices</h1>
+      <p class="page-sub" id="invCount">Loading...</p>
+    </div>
+    <button class="btn btn-primary" onclick="openCreateInvoice()">+ Create Invoice</button>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Total Invoiced</div>
+      <div class="stat-value" id="statTotal">—</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">Paid</div>
+      <div class="stat-value" id="statPaid">—</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="stat-label">Sent / Awaiting</div>
+      <div class="stat-value" id="statSent">—</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-label">Draft</div>
+      <div class="stat-value" id="statDraft">—</div>
+    </div>
+  </div>
+
+  <!-- FILTER -->
+  <div class="toolbar">
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="setFilter('All', this)">All</button>
+      <button class="filter-tab" onclick="setFilter('Draft', this)">Draft</button>
+      <button class="filter-tab" onclick="setFilter('Sent', this)">Sent</button>
+      <button class="filter-tab" onclick="setFilter('Paid', this)">Paid</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="loadingState" class="loading">Loading invoices...</div>
+    <table class="data-table" id="invTable" style="display:none">
+      <thead>
+        <tr>
+          <th>Invoice</th>
+          <th>Client</th>
+          <th>Appt Charges</th>
+          <th>Travel</th>
+          <th>Total</th>
+          <th>Due Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="invBody"></tbody>
+    </table>
+    <div class="empty-state" id="emptyState" style="display:none">
+      <div class="icon">📋</div>
+      <p>No invoices found</p>
+    </div>
+  </div>
+</main>
+
+<!-- CREATE INVOICE MODAL -->
+<div class="modal-overlay" id="invoiceModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modalTitle">Create Invoice</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-section">Invoice Details</div>
+        <div class="form-group">
+          <label>Client *</label>
+          <select id="f_client" onchange="loadReadyAppointments()">
+            <option value="">Select client...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Invoice Number</label>
+          <input type="text" id="f_invoice_number" placeholder="Auto-generated"/>
+        </div>
+        <div class="form-group">
+          <label>Due Date</label>
+          <input type="date" id="f_due_date"/>
+        </div>
+        <div class="form-group">
+          <label>Travel Fee (€)</label>
+          <input type="number" id="f_travel_fee" placeholder="0.00" step="0.01" min="0" oninput="updateTotal()"/>
+        </div>
+        <div class="form-group full">
+          <label>Notes</label>
+          <input type="text" id="f_notes" placeholder="Any notes for this invoice..."/>
+        </div>
+
+        <div class="form-section">Select Appointments to Include</div>
+        <div class="appt-selector">
+          <div id="apptSelectorMsg" style="font-size:.85rem;color:var(--ink-ghost);padding:.5rem 0">Select a client to see their ready appointments.</div>
+          <div class="appt-list" id="apptSelectorList" style="display:none"></div>
+        </div>
+
+        <div class="form-section">Invoice Total</div>
+        <div class="invoice-summary">
+          <div>
+            <div class="inv-sum-label">Appointment Charges</div>
+            <div class="inv-sum-value" id="sumAppt">€0.00</div>
+          </div>
+          <div>
+            <div class="inv-sum-label">Travel Fee</div>
+            <div class="inv-sum-value" id="sumTravel">€0.00</div>
+          </div>
+          <div>
+            <div class="inv-sum-label">Total Due</div>
+            <div class="inv-sum-total" id="sumTotal">€0.00</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveInvoice()">💾 Save Invoice</button>
+    </div>
+  </div>
+</div>
+
+<!-- PDF PREVIEW MODAL -->
+<div class="modal-overlay" id="pdfModal">
+  <div class="modal" style="width:min(740px,95vw)">
+    <div class="modal-header">
+      <h2 class="modal-title">Invoice Preview</h2>
+      <button class="modal-close" onclick="closePdfModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="pdfContent"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closePdfModal()">Close</button>
+      <button class="btn btn-primary" onclick="window.print()">🖨️ Print / Save as PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="confirm-modal">
+    <div class="confirm-icon" id="confirmIcon">⚠️</div>
+    <div class="confirm-title" id="confirmTitle">Are you sure?</div>
+    <div class="confirm-text" id="confirmText"></div>
+    <div class="confirm-actions">
+      <button class="btn btn-outline" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-danger" id="confirmBtn" onclick="executeConfirm()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://xdrliaryxuzfohjfmzye.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_LjcWermHw6RN3ZDCpQSvqg_BnccE10n';
+
+  let allInvoices = [];
+  let allClients = [];
+  let readyAppointments = [];
+  let currentFilter = 'All';
+  let editingId = null;
+  let confirmAction = null;
+
+  // Auth
+  netlifyIdentity.init({ APIUrl: 'https://dds-consulting.pt/.netlify/identity' });
+  netlifyIdentity.on('init', user => {
+    if (!user) { window.location.href = '/admin/index.html'; return; }
+    document.getElementById('userEmail').textContent = user.email;
+  });
+  netlifyIdentity.on('logout', () => { window.location.href = '/admin/index.html'; });
+  function handleLogout() { netlifyIdentity.logout(); }
+
+  // Supabase helper
+  async function sbFetch(endpoint, options = {}) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': options.prefer || 'return=representation',
+        ...options.headers
+      },
+      ...options
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
+  }
+
+  const eur = v => `€${parseFloat(v || 0).toFixed(2)}`;
+  const fmtDate = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+
+  function generateInvoiceNumber() {
+    const year = new Date().getFullYear();
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let suffix = '';
+    for (let i = 0; i < 4; i++) suffix += chars[Math.floor(Math.random() * chars.length)];
+    return `DDS-${year}-${suffix}`;
+  }
+
+  async function loadData() {
+    try {
+      [allInvoices, allClients] = await Promise.all([
+        sbFetch('invoices?order=created_at.desc&select=*,clients(name,email,phone,address)'),
+        sbFetch('clients?status=eq.Active&order=name.asc&select=id,name,email,phone,address,hourly_rate')
+      ]);
+
+      // Stats
+      const total = allInvoices.reduce((s, i) => s + parseFloat(i.total_due || 0), 0);
+      const paid = allInvoices.filter(i => i.status === 'Paid').reduce((s, i) => s + parseFloat(i.total_due || 0), 0);
+      const sent = allInvoices.filter(i => i.status === 'Sent').reduce((s, i) => s + parseFloat(i.total_due || 0), 0);
+      const draft = allInvoices.filter(i => i.status === 'Draft').reduce((s, i) => s + parseFloat(i.total_due || 0), 0);
+      document.getElementById('statTotal').textContent = eur(total);
+      document.getElementById('statPaid').textContent = eur(paid);
+      document.getElementById('statSent').textContent = eur(sent);
+      document.getElementById('statDraft').textContent = eur(draft);
+
+      // Populate client dropdown
+      const sel = document.getElementById('f_client');
+      sel.innerHTML = '<option value="">Select client...</option>';
+      allClients.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = c.name;
+        sel.appendChild(opt);
+      });
+
+      renderInvoices();
+    } catch (err) {
+      console.error(err);
+      document.getElementById('loadingState').textContent = 'Error loading invoices.';
+    }
+  }
+
+  function setFilter(filter, el) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    renderInvoices();
+  }
+
+  function renderInvoices() {
+    let filtered = currentFilter === 'All' ? allInvoices : allInvoices.filter(i => i.status === currentFilter);
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('invCount').textContent = `${filtered.length} invoice${filtered.length !== 1 ? 's' : ''}`;
+
+    if (filtered.length === 0) {
+      document.getElementById('invTable').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'block';
+      return;
+    }
+
+    document.getElementById('invTable').style.display = 'table';
+    document.getElementById('emptyState').style.display = 'none';
+
+    document.getElementById('invBody').innerHTML = filtered.map(inv => {
+      const statusClass = inv.status === 'Paid' ? 'badge-green' : inv.status === 'Sent' ? 'badge-amber' : 'badge-teal';
+      return `
+      <tr>
+        <td>
+          <div class="inv-number">${inv.invoice_number}</div>
+          <div class="inv-date">Created ${fmtDate(inv.created_at?.split('T')[0])}</div>
+        </td>
+        <td>${inv.clients?.name || '—'}</td>
+        <td>${eur(inv.appointment_charges)}</td>
+        <td>${eur(inv.travel_fee)}</td>
+        <td><strong>${eur(inv.total_due)}</strong></td>
+        <td>${fmtDate(inv.due_date)}</td>
+        <td><span class="badge ${statusClass}">${inv.status}</span></td>
+        <td>
+          <div class="actions">
+            <button class="btn btn-sm btn-outline" onclick="previewInvoice('${inv.id}')">👁 View</button>
+            ${inv.status === 'Draft' ? `<button class="btn btn-sm btn-amber" onclick="markSent('${inv.id}')">📤 Sent</button>` : ''}
+            ${inv.status === 'Sent' ? `<button class="btn btn-sm btn-success" onclick="markPaid('${inv.id}')">✅ Paid</button>` : ''}
+            <button class="btn btn-sm btn-danger" onclick="confirmDelete('${inv.id}', '${inv.invoice_number}')">🗑</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  async function loadReadyAppointments() {
+    const clientId = document.getElementById('f_client').value;
+    if (!clientId) {
+      document.getElementById('apptSelectorMsg').style.display = 'block';
+      document.getElementById('apptSelectorList').style.display = 'none';
+      return;
+    }
+
+    const appts = await sbFetch(`appointments?client_id=eq.${clientId}&ready_for_invoice=eq.true&select=*`);
+    readyAppointments = appts || [];
+
+    document.getElementById('apptSelectorMsg').style.display = 'none';
+    const list = document.getElementById('apptSelectorList');
+
+    if (readyAppointments.length === 0) {
+      list.innerHTML = '<div style="padding:1rem;font-size:.85rem;color:var(--ink-ghost)">No appointments ready to invoice for this client.</div>';
+      list.style.display = 'block';
+      return;
+    }
+
+    list.style.display = 'block';
+    list.innerHTML = readyAppointments.map(a => `
+      <div class="appt-item" onclick="toggleAppt('${a.id}')">
+        <input type="checkbox" id="appt_${a.id}" value="${a.id}" data-charge="${a.appointment_charge || 0}" onchange="updateTotal()" onclick="event.stopPropagation()"/>
+        <div class="appt-item-info">
+          <div class="appt-item-name">${a.service_type || 'Appointment'} · ${fmtDate(a.date)}</div>
+          <div class="appt-item-detail">${a.appointment_id} · ${a.hours_worked || 0}h</div>
+        </div>
+        <div class="appt-item-charge">${eur(a.appointment_charge)}</div>
+      </div>`).join('');
+
+    updateTotal();
+  }
+
+  function toggleAppt(id) {
+    const cb = document.getElementById(`appt_${id}`);
+    cb.checked = !cb.checked;
+    updateTotal();
+  }
+
+  function updateTotal() {
+    const travel = parseFloat(document.getElementById('f_travel_fee').value || 0);
+    let apptTotal = 0;
+    document.querySelectorAll('#apptSelectorList input[type="checkbox"]:checked').forEach(cb => {
+      apptTotal += parseFloat(cb.dataset.charge || 0);
+    });
+    document.getElementById('sumAppt').textContent = eur(apptTotal);
+    document.getElementById('sumTravel').textContent = eur(travel);
+    document.getElementById('sumTotal').textContent = eur(apptTotal + travel);
+  }
+
+  function openCreateInvoice() {
+    editingId = null;
+    document.getElementById('modalTitle').textContent = 'Create Invoice';
+    document.getElementById('f_client').value = '';
+    document.getElementById('f_invoice_number').value = generateInvoiceNumber();
+    const due = new Date();
+    due.setDate(due.getDate() + 14);
+    document.getElementById('f_due_date').value = due.toISOString().split('T')[0];
+    document.getElementById('f_travel_fee').value = '';
+    document.getElementById('f_notes').value = '';
+    document.getElementById('apptSelectorMsg').style.display = 'block';
+    document.getElementById('apptSelectorList').style.display = 'none';
+    updateTotal();
+    document.getElementById('invoiceModal').classList.add('open');
+  }
+
+  function closeModal() { document.getElementById('invoiceModal').classList.remove('open'); }
+
+  async function saveInvoice() {
+    const clientId = document.getElementById('f_client').value;
+    if (!clientId) { alert('Please select a client!'); return; }
+
+    const selectedAppts = [...document.querySelectorAll('#apptSelectorList input[type="checkbox"]:checked')];
+    const apptCharges = selectedAppts.reduce((s, cb) => s + parseFloat(cb.dataset.charge || 0), 0);
+    const travelFee = parseFloat(document.getElementById('f_travel_fee').value || 0);
+    const total = apptCharges + travelFee;
+
+    const data = {
+      invoice_number: document.getElementById('f_invoice_number').value,
+      client_id: clientId,
+      status: 'Draft',
+      travel_fee: travelFee,
+      notes: document.getElementById('f_notes').value.trim() || null,
+      appointment_charges: apptCharges,
+      activity_charges: 0,
+      total_due: total,
+      due_date: document.getElementById('f_due_date').value || null,
+    };
+
+    try {
+      const saved = await sbFetch('invoices', { method: 'POST', body: JSON.stringify(data) });
+      const invoiceId = saved[0].id;
+
+      // Link appointments
+      if (selectedAppts.length > 0) {
+        const links = selectedAppts.map(cb => ({ invoice_id: invoiceId, appointment_id: cb.value }));
+        await sbFetch('invoice_appointments', { method: 'POST', body: JSON.stringify(links) });
+        // Mark appointments as invoiced
+        for (const cb of selectedAppts) {
+          await sbFetch(`appointments?id=eq.${cb.value}`, { method: 'PATCH', body: JSON.stringify({ ready_for_invoice: false }) });
+        }
+      }
+
+      closeModal();
+      await loadData();
+    } catch (err) {
+      console.error(err);
+      alert('Error saving invoice. Please try again.');
+    }
+  }
+
+  async function markSent(id) {
+    await sbFetch(`invoices?id=eq.${id}`, { method: 'PATCH', body: JSON.stringify({ status: 'Sent', date_sent: new Date().toISOString().split('T')[0] }) });
+    await loadData();
+  }
+
+  async function markPaid(id) {
+    await sbFetch(`invoices?id=eq.${id}`, { method: 'PATCH', body: JSON.stringify({ status: 'Paid', paid_date: new Date().toISOString().split('T')[0] }) });
+    await loadData();
+  }
+
+  async function previewInvoice(id) {
+    const inv = allInvoices.find(i => i.id === id);
+    if (!inv) return;
+
+    // Load linked appointments
+    const links = await sbFetch(`invoice_appointments?invoice_id=eq.${id}&select=appointment_id,appointments(service_type,date,hours_worked,appointment_charge,support_type)`);
+
+    const apptRows = (links || []).map(l => {
+      const a = l.appointments;
+      return `<tr>
+        <td>${a?.service_type || 'Service'}</td>
+        <td>${fmtDate(a?.date)}</td>
+        <td>${a?.hours_worked || 0}h (${a?.support_type || ''})</td>
+        <td style="text-align:right;font-weight:600">${eur(a?.appointment_charge)}</td>
+      </tr>`;
+    }).join('');
+
+    document.getElementById('pdfContent').innerHTML = `
+      <div class="pdf-preview">
+        <div class="pdf-header">
+          <div class="pdf-logo-area">
+            <img src="../dds-logo-clean.png" alt="DDS"/>
+            <div class="pdf-company">
+              <strong>DDS Consulting</strong><br>
+              Debora Da Silva<br>
+              Central Portugal<br>
+              debora@dds-consulting.pt<br>
+              +351 912 173 159
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div class="pdf-invoice-label">INVOICE</div>
+            <div class="pdf-invoice-num">${inv.invoice_number}</div>
+          </div>
+        </div>
+
+        <div class="pdf-to">
+          <div class="pdf-label">Bill To</div>
+          <div class="pdf-client-name">${inv.clients?.name || '—'}</div>
+          ${inv.clients?.email ? `<div style="font-size:.85rem;color:var(--ink-soft)">${inv.clients.email}</div>` : ''}
+          ${inv.clients?.phone ? `<div style="font-size:.85rem;color:var(--ink-soft)">${inv.clients.phone}</div>` : ''}
+        </div>
+
+        <div class="pdf-dates">
+          <div>
+            <div class="pdf-date-label">Invoice Date</div>
+            <div class="pdf-date-val">${fmtDate(inv.created_at?.split('T')[0])}</div>
+          </div>
+          <div>
+            <div class="pdf-date-label">Due Date</div>
+            <div class="pdf-date-val">${fmtDate(inv.due_date)}</div>
+          </div>
+        </div>
+
+        <table class="pdf-items">
+          <thead>
+            <tr>
+              <th>Service</th>
+              <th>Date</th>
+              <th>Duration</th>
+              <th style="text-align:right">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${apptRows}
+            ${parseFloat(inv.travel_fee || 0) > 0 ? `
+            <tr>
+              <td>Travel Fee</td>
+              <td>—</td>
+              <td>Zone charge</td>
+              <td style="text-align:right;font-weight:600">${eur(inv.travel_fee)}</td>
+            </tr>` : ''}
+          </tbody>
+        </table>
+
+        <div class="pdf-totals">
+          <div class="pdf-total-row"><span>Subtotal</span><span>${eur(inv.appointment_charges)}</span></div>
+          ${parseFloat(inv.travel_fee || 0) > 0 ? `<div class="pdf-total-row"><span>Travel Fee</span><span>${eur(inv.travel_fee)}</span></div>` : ''}
+          <div class="pdf-total-final"><span>Total Due</span><span>${eur(inv.total_due)}</span></div>
+        </div>
+
+        ${inv.notes ? `<div style="margin-top:1.5rem;font-size:.85rem;color:var(--ink-soft)"><strong>Notes:</strong> ${inv.notes}</div>` : ''}
+
+        <div class="pdf-footer">
+          Thank you for your trust in DDS Consulting · Payment due by ${fmtDate(inv.due_date)}<br>
+          Please transfer to: <strong>Debora Da Silva</strong> · IBAN: PT50 XXXX XXXX XXXX XXXX XXXX X
+        </div>
+      </div>`;
+
+    document.getElementById('pdfModal').classList.add('open');
+  }
+
+  function closePdfModal() { document.getElementById('pdfModal').classList.remove('open'); }
+
+  function confirmDelete(id, number) {
+    confirmAction = () => deleteInvoice(id);
+    document.getElementById('confirmIcon').textContent = '🗑';
+    document.getElementById('confirmTitle').textContent = 'Delete Invoice?';
+    document.getElementById('confirmText').textContent = `This will permanently delete invoice ${number}. This cannot be undone.`;
+    document.getElementById('confirmBtn').textContent = 'Delete';
+    document.getElementById('confirmModal').classList.add('open');
+  }
+
+  async function deleteInvoice(id) {
+    await sbFetch(`invoice_appointments?invoice_id=eq.${id}`, { method: 'DELETE', prefer: 'return=minimal' });
+    await sbFetch(`invoices?id=eq.${id}`, { method: 'DELETE', prefer: 'return=minimal' });
+    closeConfirm();
+    await loadData();
+  }
+
+  function closeConfirm() { document.getElementById('confirmModal').classList.remove('open'); confirmAction = null; }
+  function executeConfirm() { if (confirmAction) confirmAction(); }
+
+  document.getElementById('invoiceModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+  document.getElementById('pdfModal').addEventListener('click', e => { if (e.target === e.currentTarget) closePdfModal(); });
+  document.getElementById('confirmModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeConfirm(); });
+
+  loadData();
+</script>
+</body>
+</html>
