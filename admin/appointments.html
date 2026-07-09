@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DDS Consulting — Appointments</title>
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal:      #0d4d4c;
+      --teal-lt:   #1a6e6d;
+      --teal-pale: #e0eaea;
+      --cream:     #f4f6f4;
+      --white:     #ffffff;
+      --ink:       #071f1f;
+      --ink-soft:  #3d5452;
+      --ink-ghost: #8c9884;
+      --line:      #d4ddd6;
+      --red:       #c0392b;
+      --red-pale:  #fdecea;
+      --green:     #27ae60;
+      --amber:     #f39c12;
+      --sidebar-w: 240px;
+    }
+
+    body { font-family: 'Segoe UI', sans-serif; background: var(--cream); color: var(--ink); display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { width: var(--sidebar-w); background: var(--teal); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 100; }
+    .sidebar-logo { display: flex; align-items: center; gap: .8rem; padding: 1.5rem 1.2rem; border-bottom: 1px solid rgba(255,255,255,.1); }
+    .sidebar-logo img { width: 40px; height: 40px; border-radius: 8px; }
+    .sidebar-logo-text { font-size: .95rem; font-weight: 700; color: #fff; line-height: 1.2; }
+    .sidebar-logo-sub { font-size: .7rem; color: rgba(255,255,255,.5); }
+    .sidebar-nav { flex: 1; padding: 1.2rem 0; }
+    .nav-label { font-size: .65rem; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; color: rgba(255,255,255,.35); padding: .8rem 1.2rem .4rem; }
+    .nav-item { display: flex; align-items: center; gap: .8rem; padding: .75rem 1.2rem; color: rgba(255,255,255,.7); text-decoration: none; font-size: .88rem; font-weight: 500; transition: background .2s, color .2s; border-left: 3px solid transparent; }
+    .nav-item:hover { background: rgba(255,255,255,.08); color: #fff; }
+    .nav-item.active { background: rgba(255,255,255,.12); color: #fff; border-left-color: #fff; }
+    .nav-item .icon { font-size: 1.1rem; width: 20px; text-align: center; }
+    .sidebar-footer { padding: 1.2rem; border-top: 1px solid rgba(255,255,255,.1); }
+    .user-email { font-size: .82rem; color: rgba(255,255,255,.8); font-weight: 500; display: block; margin-bottom: .6rem; }
+    .logout-btn { display: block; width: 100%; padding: .6rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.7); border: 1px solid rgba(255,255,255,.15); border-radius: 8px; font-size: .82rem; cursor: pointer; transition: background .2s; text-align: center; }
+    .logout-btn:hover { background: rgba(255,255,255,.2); color: #fff; }
+
+    /* ── MAIN ── */
+    .main { margin-left: var(--sidebar-w); flex: 1; padding: 2rem; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
+    .page-title { font-size: 1.6rem; font-weight: 700; color: var(--ink); }
+    .page-sub { font-size: .85rem; color: var(--ink-ghost); margin-top: .3rem; }
+
+    /* ── BUTTONS ── */
+    .btn { display: inline-flex; align-items: center; gap: .4rem; padding: .65rem 1.3rem; border-radius: 8px; font-size: .85rem; font-weight: 600; cursor: pointer; border: none; transition: background .2s, transform .2s; }
+    .btn-primary { background: var(--teal); color: #fff; }
+    .btn-primary:hover { background: var(--teal-lt); transform: translateY(-1px); }
+    .btn-sm { padding: .4rem .8rem; font-size: .78rem; border-radius: 6px; }
+    .btn-outline { background: transparent; border: 1.5px solid var(--line); color: var(--ink-soft); }
+    .btn-outline:hover { border-color: var(--teal); color: var(--teal); }
+    .btn-danger { background: var(--red-pale); color: var(--red); border: 1px solid rgba(192,57,43,.2); }
+    .btn-danger:hover { background: var(--red); color: #fff; }
+    .btn-success { background: rgba(39,174,96,.1); color: var(--green); border: 1px solid rgba(39,174,96,.2); }
+    .btn-success:hover { background: var(--green); color: #fff; }
+
+    /* ── TOOLBAR ── */
+    .toolbar { display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .search-box { display: flex; align-items: center; gap: .5rem; background: var(--white); border: 1.5px solid var(--line); border-radius: 8px; padding: .5rem 1rem; flex: 1; max-width: 300px; }
+    .search-box input { border: none; outline: none; font-size: .88rem; color: var(--ink); background: transparent; width: 100%; }
+    .filter-tabs { display: flex; gap: .4rem; }
+    .filter-tab { padding: .4rem 1rem; border-radius: 6px; font-size: .8rem; font-weight: 600; cursor: pointer; border: 1.5px solid var(--line); background: var(--white); color: var(--ink-soft); transition: all .2s; }
+    .filter-tab.active { background: var(--teal); color: #fff; border-color: var(--teal); }
+
+    /* ── TABLE ── */
+    .card { background: var(--white); border-radius: 14px; border: 1.5px solid var(--line); overflow: hidden; }
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th { font-size: .72rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-ghost); padding: .9rem 1rem; text-align: left; border-bottom: 1px solid var(--line); background: var(--cream); }
+    .data-table td { padding: .9rem 1rem; font-size: .85rem; color: var(--ink-soft); border-bottom: 1px solid var(--line); vertical-align: middle; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: #f8fafa; }
+    .appt-client { font-weight: 600; color: var(--ink); }
+    .appt-id { font-size: .72rem; color: var(--ink-ghost); }
+    .actions { display: flex; gap: .4rem; flex-wrap: wrap; }
+    .badge { display: inline-block; padding: .25rem .7rem; border-radius: 50px; font-size: .72rem; font-weight: 600; }
+    .badge-green { background: rgba(39,174,96,.1); color: var(--green); }
+    .badge-amber { background: rgba(243,156,18,.1); color: var(--amber); }
+    .badge-teal { background: var(--teal-pale); color: var(--teal); }
+    .badge-grey { background: rgba(0,0,0,.06); color: var(--ink-ghost); }
+    .empty-state { text-align: center; padding: 3rem; color: var(--ink-ghost); }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .loading { text-align: center; padding: 2rem; color: var(--ink-ghost); }
+    .charge-calc { font-size: .75rem; color: var(--ink-ghost); margin-top: .2rem; }
+
+    /* ── MODAL ── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 200; display: none; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--white); border-radius: 16px; width: min(640px, 95vw); max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.2); }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 1.5rem; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--white); z-index: 1; }
+    .modal-title { font-size: 1.1rem; font-weight: 700; color: var(--ink); }
+    .modal-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--ink-ghost); }
+    .modal-close:hover { color: var(--ink); }
+    .modal-body { padding: 1.5rem; }
+    .modal-footer { padding: 1.2rem 1.5rem; border-top: 1px solid var(--line); display: flex; gap: .8rem; justify-content: flex-end; }
+
+    /* ── FORM ── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: .4rem; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label { font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-ghost); }
+    .form-group input, .form-group select, .form-group textarea {
+      font-family: 'Segoe UI', sans-serif; font-size: .9rem; color: var(--ink);
+      background: var(--cream); border: 1.5px solid var(--line); border-radius: 8px;
+      padding: .7rem .9rem; outline: none; transition: border-color .2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--teal); }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-section { font-size: .8rem; font-weight: 700; color: var(--teal); text-transform: uppercase; letter-spacing: .1em; margin: 1.2rem 0 .6rem; padding-bottom: .4rem; border-bottom: 1px solid var(--line); grid-column: 1 / -1; }
+
+    .charge-preview {
+      grid-column: 1 / -1;
+      background: var(--teal-pale);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      font-size: .88rem;
+      color: var(--teal);
+      font-weight: 600;
+    }
+
+    /* ── CONFIRM MODAL ── */
+    .confirm-modal { background: var(--white); border-radius: 16px; width: min(400px, 95vw); padding: 2rem; box-shadow: 0 20px 60px rgba(0,0,0,.2); text-align: center; }
+    .confirm-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .confirm-title { font-size: 1.1rem; font-weight: 700; color: var(--ink); margin-bottom: .6rem; }
+    .confirm-text { font-size: .88rem; color: var(--ink-soft); line-height: 1.6; margin-bottom: 1.5rem; }
+    .confirm-actions { display: flex; gap: .8rem; justify-content: center; }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <img src="../dds-logo-clean.png" alt="DDS"/>
+    <div>
+      <div class="sidebar-logo-text">DDS Consulting</div>
+      <div class="sidebar-logo-sub">Admin Portal</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a href="dashboard.html" class="nav-item"><span class="icon">📊</span> Dashboard</a>
+    <a href="clients.html" class="nav-item"><span class="icon">👥</span> Clients</a>
+    <a href="appointments.html" class="nav-item active"><span class="icon">📅</span> Appointments</a>
+    <div class="nav-label">Finance</div>
+    <a href="invoices.html" class="nav-item"><span class="icon">📋</span> Invoices</a>
+    <a href="activity.html" class="nav-item"><span class="icon">⏱</span> Activity Log</a>
+    <div class="nav-label">Site</div>
+    <a href="/" class="nav-item"><span class="icon">🌐</span> View Website</a>
+  </nav>
+  <div class="sidebar-footer">
+    <span class="user-email" id="userEmail">Loading...</span>
+    <button class="logout-btn" onclick="handleLogout()">Sign Out</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Appointments</h1>
+      <p class="page-sub" id="apptCount">Loading...</p>
+    </div>
+    <button class="btn btn-primary" onclick="openAddAppt()">+ Add Appointment</button>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <span>🔍</span>
+      <input type="text" id="searchInput" placeholder="Search..." oninput="renderAppointments()"/>
+    </div>
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="setFilter('All', this)">All</button>
+      <button class="filter-tab" onclick="setFilter('Scheduled', this)">Scheduled</button>
+      <button class="filter-tab" onclick="setFilter('Completed', this)">Completed</button>
+      <button class="filter-tab" onclick="setFilter('ready', this)">Ready to Invoice</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="loadingState" class="loading">Loading appointments...</div>
+    <table class="data-table" id="apptTable" style="display:none">
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th>Service</th>
+          <th>Date & Time</th>
+          <th>Location</th>
+          <th>Hours</th>
+          <th>Charge</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="apptBody"></tbody>
+    </table>
+    <div class="empty-state" id="emptyState" style="display:none">
+      <div class="icon">📅</div>
+      <p>No appointments found</p>
+    </div>
+  </div>
+</main>
+
+<!-- ADD/EDIT APPOINTMENT MODAL -->
+<div class="modal-overlay" id="apptModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modalTitle">Add Appointment</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-section">Appointment Details</div>
+        <div class="form-group full">
+          <label>Client *</label>
+          <select id="f_client" onchange="updateRate()">
+            <option value="">Select client...</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Service Type</label>
+          <input type="text" id="f_service_type" placeholder="e.g. Finanças support, Medical appointment..."/>
+        </div>
+        <div class="form-group">
+          <label>Support Type</label>
+          <select id="f_support_type">
+            <option>In Person</option>
+            <option>Remote</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Location</label>
+          <select id="f_location">
+            <option value="">Select location...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date *</label>
+          <input type="date" id="f_date"/>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="f_status">
+            <option>Scheduled</option>
+            <option>Completed</option>
+            <option>Cancelled</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Start Time</label>
+          <input type="time" id="f_start_time"/>
+        </div>
+        <div class="form-group">
+          <label>End Time</label>
+          <input type="time" id="f_end_time" onchange="calculateCharge()"/>
+        </div>
+        <div class="form-group">
+          <label>Travel KM</label>
+          <input type="number" id="f_travel_km" placeholder="0" min="0" step="0.1"/>
+        </div>
+        <div class="form-group">
+          <label>Ready for Invoice</label>
+          <select id="f_ready_for_invoice">
+            <option value="false">No</option>
+            <option value="true">Yes</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Notes</label>
+          <textarea id="f_notes" placeholder="Appointment notes..."></textarea>
+        </div>
+
+        <div class="form-section">Billing</div>
+        <div class="form-group">
+          <label>Hours Worked</label>
+          <input type="number" id="f_hours_worked" placeholder="0.50" min="0" step="0.25" onchange="calculateCharge()"/>
+        </div>
+        <div class="form-group">
+          <label>Appointment Charge (€)</label>
+          <input type="number" id="f_appointment_charge" placeholder="0.00" min="0" step="0.01"/>
+        </div>
+        <div class="charge-preview" id="chargePreview" style="display:none">
+          💡 Calculated charge: <span id="calcCharge">—</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAppointment()">Save Appointment</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="confirm-modal">
+    <div class="confirm-icon">⚠️</div>
+    <div class="confirm-title" id="confirmTitle">Are you sure?</div>
+    <div class="confirm-text" id="confirmText"></div>
+    <div class="confirm-actions">
+      <button class="btn btn-outline" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-danger" id="confirmBtn" onclick="executeConfirm()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://xdrliaryxuzfohjfmzye.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_LjcWermHw6RN3ZDCpQSvqg_BnccE10n';
+
+  let allAppointments = [];
+  let clients = [];
+  let locations = [];
+  let currentFilter = 'All';
+  let editingId = null;
+  let confirmAction = null;
+
+  // Auth
+  netlifyIdentity.init({ APIUrl: 'https://dds-consulting.pt/.netlify/identity' });
+  netlifyIdentity.on('init', user => {
+    if (!user) { window.location.href = '/admin/index.html'; return; }
+    document.getElementById('userEmail').textContent = user.email;
+  });
+  netlifyIdentity.on('logout', () => { window.location.href = '/admin/index.html'; });
+  function handleLogout() { netlifyIdentity.logout(); }
+
+  // Supabase helper
+  async function sbFetch(endpoint, options = {}) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': options.prefer || 'return=representation',
+        ...options.headers
+      },
+      ...options
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
+  }
+
+  const eur = v => `€${parseFloat(v || 0).toFixed(2)}`;
+  const fmtDate = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+  const fmtTime = t => t ? new Date(t).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '';
+
+  function generateApptId() {
+    const num = allAppointments.length + 1;
+    return `DDS-AP-${num}`;
+  }
+
+  async function loadData() {
+    try {
+      [allAppointments, clients, locations] = await Promise.all([
+        sbFetch('appointments?order=date.desc&select=*,clients(name,hourly_rate),locations(name,zone_fee)'),
+        sbFetch('clients?status=eq.Active&order=name.asc&select=id,name,hourly_rate'),
+        sbFetch('locations?order=name.asc&select=id,name,zone_fee')
+      ]);
+
+      // Populate dropdowns
+      const clientSel = document.getElementById('f_client');
+      clients.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = c.name;
+        opt.dataset.rate = c.hourly_rate;
+        clientSel.appendChild(opt);
+      });
+
+      const locSel = document.getElementById('f_location');
+      locations.forEach(l => {
+        const opt = document.createElement('option');
+        opt.value = l.id;
+        opt.textContent = `${l.name} (€${l.zone_fee} zone fee)`;
+        locSel.appendChild(opt);
+      });
+
+      renderAppointments();
+    } catch (err) {
+      console.error(err);
+      document.getElementById('loadingState').textContent = 'Error loading appointments.';
+    }
+  }
+
+  function setFilter(filter, el) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    renderAppointments();
+  }
+
+  function renderAppointments() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    let filtered = allAppointments.filter(a => {
+      const matchFilter = currentFilter === 'All' ? true :
+        currentFilter === 'ready' ? a.ready_for_invoice === true :
+        a.status === currentFilter;
+      const matchSearch = !search ||
+        (a.clients?.name || '').toLowerCase().includes(search) ||
+        (a.service_type || '').toLowerCase().includes(search) ||
+        (a.appointment_id || '').toLowerCase().includes(search);
+      return matchFilter && matchSearch;
+    });
+
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('apptCount').textContent = `${filtered.length} appointment${filtered.length !== 1 ? 's' : ''}`;
+
+    if (filtered.length === 0) {
+      document.getElementById('apptTable').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'block';
+      return;
+    }
+
+    document.getElementById('apptTable').style.display = 'table';
+    document.getElementById('emptyState').style.display = 'none';
+
+    document.getElementById('apptBody').innerHTML = filtered.map(a => {
+      const statusClass = a.status === 'Completed' ? 'badge-green' : a.status === 'Scheduled' ? 'badge-amber' : 'badge-grey';
+      return `
+      <tr>
+        <td>
+          <div class="appt-client">${a.clients?.name || '—'}</div>
+          <div class="appt-id">${a.appointment_id}</div>
+        </td>
+        <td>${a.service_type || '—'}</td>
+        <td>
+          ${fmtDate(a.date)}
+          ${a.start_time ? `<br><small>${fmtTime(a.start_time)}${a.end_time ? ' – ' + fmtTime(a.end_time) : ''}</small>` : ''}
+        </td>
+        <td>${a.locations?.name || '—'}</td>
+        <td>
+          ${a.hours_worked || 0}h
+          <div class="charge-calc">${a.support_type || ''}</div>
+        </td>
+        <td>${eur(a.appointment_charge)}</td>
+        <td>
+          <span class="badge ${statusClass}">${a.status}</span>
+          ${a.ready_for_invoice ? '<br><span class="badge badge-teal" style="margin-top:.3rem">Ready</span>' : ''}
+        </td>
+        <td>
+          <div class="actions">
+            <button class="btn btn-sm btn-outline" onclick="openEditAppt('${a.id}')">✏️</button>
+            ${!a.ready_for_invoice && a.status === 'Completed'
+              ? `<button class="btn btn-sm btn-success" onclick="markReady('${a.id}')">✅ Invoice</button>`
+              : ''}
+            <button class="btn btn-sm btn-danger" onclick="confirmDelete('${a.id}', '${(a.clients?.name || '').replace(/'/g, "\\'")}')">🗑</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function updateRate() {
+    calculateCharge();
+  }
+
+  function calculateCharge() {
+    const clientSel = document.getElementById('f_client');
+    const selectedOption = clientSel.options[clientSel.selectedIndex];
+    const rate = parseFloat(selectedOption?.dataset?.rate || 0);
+    const hours = parseFloat(document.getElementById('f_hours_worked').value || 0);
+
+    // Auto calculate from time if hours not set
+    const startTime = document.getElementById('f_start_time').value;
+    const endTime = document.getElementById('f_end_time').value;
+    let calcHours = hours;
+
+    if (!hours && startTime && endTime) {
+      const start = new Date(`2000-01-01T${startTime}`);
+      const end = new Date(`2000-01-01T${endTime}`);
+      calcHours = (end - start) / (1000 * 60 * 60);
+      if (calcHours > 0) document.getElementById('f_hours_worked').value = calcHours.toFixed(2);
+    }
+
+    // Apply minimum 30 minute rule
+    const billableHours = Math.max(0.5, calcHours || 0);
+    const charge = rate * billableHours;
+
+    if (rate > 0 && billableHours > 0) {
+      document.getElementById('chargePreview').style.display = 'block';
+      document.getElementById('calcCharge').textContent = `${eur(charge)} (${billableHours}h × ${eur(rate)}/hr${calcHours < 0.5 ? ' — minimum 30 min applied' : ''})`;
+      document.getElementById('f_appointment_charge').value = charge.toFixed(2);
+    } else {
+      document.getElementById('chargePreview').style.display = 'none';
+    }
+  }
+
+  function openAddAppt() {
+    editingId = null;
+    document.getElementById('modalTitle').textContent = 'Add Appointment';
+    clearForm();
+    // Default date to today
+    document.getElementById('f_date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('apptModal').classList.add('open');
+  }
+
+  function openEditAppt(id) {
+    const appt = allAppointments.find(a => a.id === id);
+    if (!appt) return;
+    editingId = id;
+    document.getElementById('modalTitle').textContent = 'Edit Appointment';
+    document.getElementById('f_client').value = appt.client_id || '';
+    document.getElementById('f_service_type').value = appt.service_type || '';
+    document.getElementById('f_support_type').value = appt.support_type || 'In Person';
+    document.getElementById('f_location').value = appt.location_id || '';
+    document.getElementById('f_date').value = appt.date || '';
+    document.getElementById('f_status').value = appt.status || 'Scheduled';
+    document.getElementById('f_travel_km').value = appt.travel_km || '';
+    document.getElementById('f_ready_for_invoice').value = appt.ready_for_invoice ? 'true' : 'false';
+    document.getElementById('f_notes').value = appt.notes || '';
+    document.getElementById('f_hours_worked').value = appt.hours_worked || '';
+    document.getElementById('f_appointment_charge').value = appt.appointment_charge || '';
+    if (appt.start_time) document.getElementById('f_start_time').value = new Date(appt.start_time).toTimeString().slice(0,5);
+    if (appt.end_time) document.getElementById('f_end_time').value = new Date(appt.end_time).toTimeString().slice(0,5);
+    document.getElementById('apptModal').classList.add('open');
+  }
+
+  function clearForm() {
+    document.getElementById('f_client').value = '';
+    document.getElementById('f_service_type').value = '';
+    document.getElementById('f_support_type').value = 'In Person';
+    document.getElementById('f_location').value = '';
+    document.getElementById('f_date').value = '';
+    document.getElementById('f_status').value = 'Scheduled';
+    document.getElementById('f_start_time').value = '';
+    document.getElementById('f_end_time').value = '';
+    document.getElementById('f_travel_km').value = '';
+    document.getElementById('f_ready_for_invoice').value = 'false';
+    document.getElementById('f_notes').value = '';
+    document.getElementById('f_hours_worked').value = '';
+    document.getElementById('f_appointment_charge').value = '';
+    document.getElementById('chargePreview').style.display = 'none';
+  }
+
+  function closeModal() { document.getElementById('apptModal').classList.remove('open'); }
+
+  async function saveAppointment() {
+    const clientId = document.getElementById('f_client').value;
+    const date = document.getElementById('f_date').value;
+    if (!clientId || !date) { alert('Client and date are required!'); return; }
+
+    const dateStr = date;
+    const startTime = document.getElementById('f_start_time').value;
+    const endTime = document.getElementById('f_end_time').value;
+
+    const data = {
+      client_id: clientId,
+      service_type: document.getElementById('f_service_type').value.trim() || null,
+      support_type: document.getElementById('f_support_type').value,
+      location_id: document.getElementById('f_location').value || null,
+      date: dateStr,
+      status: document.getElementById('f_status').value,
+      start_time: startTime ? `${dateStr}T${startTime}:00+00:00` : null,
+      end_time: endTime ? `${dateStr}T${endTime}:00+00:00` : null,
+      travel_km: parseFloat(document.getElementById('f_travel_km').value) || 0,
+      ready_for_invoice: document.getElementById('f_ready_for_invoice').value === 'true',
+      notes: document.getElementById('f_notes').value.trim() || null,
+      hours_worked: parseFloat(document.getElementById('f_hours_worked').value) || 0,
+      appointment_charge: parseFloat(document.getElementById('f_appointment_charge').value) || 0,
+    };
+
+    try {
+      if (editingId) {
+        await sbFetch(`appointments?id=eq.${editingId}`, { method: 'PATCH', body: JSON.stringify(data) });
+      } else {
+        data.appointment_id = generateApptId();
+        await sbFetch('appointments', { method: 'POST', body: JSON.stringify(data) });
+      }
+      closeModal();
+      await loadData();
+    } catch (err) {
+      console.error(err);
+      alert('Error saving appointment. Please try again.');
+    }
+  }
+
+  async function markReady(id) {
+    await sbFetch(`appointments?id=eq.${id}`, { method: 'PATCH', body: JSON.stringify({ ready_for_invoice: true }) });
+    await loadData();
+  }
+
+  function confirmDelete(id, name) {
+    confirmAction = () => deleteAppt(id);
+    document.getElementById('confirmTitle').textContent = 'Delete Appointment?';
+    document.getElementById('confirmText').textContent = `This will permanently delete this appointment for ${name}. This cannot be undone.`;
+    document.getElementById('confirmModal').classList.add('open');
+  }
+
+  async function deleteAppt(id) {
+    await sbFetch(`appointments?id=eq.${id}`, { method: 'DELETE', prefer: 'return=minimal' });
+    closeConfirm();
+    await loadData();
+  }
+
+  function closeConfirm() { document.getElementById('confirmModal').classList.remove('open'); confirmAction = null; }
+  function executeConfirm() { if (confirmAction) confirmAction(); }
+
+  document.getElementById('apptModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+  document.getElementById('confirmModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeConfirm(); });
+
+  // Add RLS policies reminder
+  async function addRLSPolicies() {
+    // Run in Supabase SQL editor:
+    // CREATE POLICY "Allow insert" ON appointments FOR INSERT WITH CHECK (true);
+    // CREATE POLICY "Allow update" ON appointments FOR UPDATE USING (true);
+    // CREATE POLICY "Allow delete" ON appointments FOR DELETE USING (true);
+  }
+
+  loadData();
+</script>
+</body>
+</html>
