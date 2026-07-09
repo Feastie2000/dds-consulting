@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DDS Consulting — Dashboard</title>
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal:      #0d4d4c;
+      --teal-lt:   #1a6e6d;
+      --teal-pale: #e0eaea;
+      --cream:     #f4f6f4;
+      --white:     #ffffff;
+      --ink:       #071f1f;
+      --ink-soft:  #3d5452;
+      --ink-ghost: #8c9884;
+      --line:      #d4ddd6;
+      --red:       #c0392b;
+      --green:     #27ae60;
+      --amber:     #f39c12;
+      --sidebar-w: 240px;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--teal);
+      min-height: 100vh;
+      position: fixed;
+      top: 0; left: 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+      padding: 1.5rem 1.2rem;
+      border-bottom: 1px solid rgba(255,255,255,.1);
+    }
+
+    .sidebar-logo img { width: 40px; height: 40px; border-radius: 8px; }
+
+    .sidebar-logo-text { font-size: .95rem; font-weight: 700; color: #fff; line-height: 1.2; }
+    .sidebar-logo-sub { font-size: .7rem; color: rgba(255,255,255,.5); }
+
+    .sidebar-nav { flex: 1; padding: 1.2rem 0; }
+
+    .nav-label {
+      font-size: .65rem;
+      font-weight: 600;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.35);
+      padding: .8rem 1.2rem .4rem;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+      padding: .75rem 1.2rem;
+      color: rgba(255,255,255,.7);
+      text-decoration: none;
+      font-size: .88rem;
+      font-weight: 500;
+      transition: background .2s, color .2s;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-item:hover { background: rgba(255,255,255,.08); color: #fff; }
+    .nav-item.active { background: rgba(255,255,255,.12); color: #fff; border-left-color: #fff; }
+    .nav-item .icon { font-size: 1.1rem; width: 20px; text-align: center; }
+
+    .sidebar-footer {
+      padding: 1.2rem;
+      border-top: 1px solid rgba(255,255,255,.1);
+    }
+
+    .user-email { font-size: .82rem; color: rgba(255,255,255,.8); font-weight: 500; display: block; margin-bottom: .6rem; }
+
+    .logout-btn {
+      display: block;
+      width: 100%;
+      padding: .6rem;
+      background: rgba(255,255,255,.1);
+      color: rgba(255,255,255,.7);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 8px;
+      font-size: .82rem;
+      cursor: pointer;
+      transition: background .2s;
+      text-align: center;
+    }
+    .logout-btn:hover { background: rgba(255,255,255,.2); color: #fff; }
+
+    /* ── MAIN ── */
+    .main { margin-left: var(--sidebar-w); flex: 1; padding: 2rem; }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+    }
+
+    .page-title { font-size: 1.6rem; font-weight: 700; color: var(--ink); }
+    .page-date { font-size: .85rem; color: var(--ink-ghost); margin-top: .3rem; }
+
+    /* ── STATS ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.2rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 1.5rem;
+      border: 1.5px solid var(--line);
+    }
+
+    .stat-label { font-size: .75rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-ghost); margin-bottom: .6rem; }
+    .stat-value { font-size: 2rem; font-weight: 700; color: var(--teal); line-height: 1; margin-bottom: .3rem; }
+    .stat-sub { font-size: .78rem; color: var(--ink-ghost); }
+
+    .stat-card.highlight { background: var(--teal); border-color: var(--teal); }
+    .stat-card.highlight .stat-label { color: rgba(255,255,255,.6); }
+    .stat-card.highlight .stat-value { color: #fff; }
+    .stat-card.highlight .stat-sub { color: rgba(255,255,255,.5); }
+
+    /* ── CONTENT GRID ── */
+    .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+    .card { background: var(--white); border-radius: 14px; border: 1.5px solid var(--line); overflow: hidden; }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 1.5rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .card-title { font-size: .95rem; font-weight: 700; color: var(--ink); }
+    .card-link { font-size: .78rem; color: var(--teal); text-decoration: none; font-weight: 500; }
+    .card-link:hover { text-decoration: underline; }
+
+    /* ── TABLE ── */
+    .data-table { width: 100%; border-collapse: collapse; }
+
+    .data-table th {
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--ink-ghost);
+      padding: .8rem 1.5rem;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      background: var(--cream);
+    }
+
+    .data-table td {
+      padding: .9rem 1.5rem;
+      font-size: .88rem;
+      color: var(--ink-soft);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: var(--cream); }
+
+    /* ── BADGES ── */
+    .badge { display: inline-block; padding: .25rem .7rem; border-radius: 50px; font-size: .72rem; font-weight: 600; }
+    .badge-green { background: rgba(39,174,96,.1); color: var(--green); }
+    .badge-amber { background: rgba(243,156,18,.1); color: var(--amber); }
+    .badge-teal { background: var(--teal-pale); color: var(--teal); }
+
+    .empty-state { text-align: center; padding: 2.5rem; color: var(--ink-ghost); font-size: .88rem; }
+    .empty-state .icon { font-size: 2rem; margin-bottom: .8rem; }
+    .loading { text-align: center; padding: 2rem; color: var(--ink-ghost); font-size: .88rem; }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <img src="../dds-logo-clean.png" alt="DDS"/>
+    <div>
+      <div class="sidebar-logo-text">DDS Consulting</div>
+      <div class="sidebar-logo-sub">Admin Portal</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a href="dashboard.html" class="nav-item active"><span class="icon">📊</span> Dashboard</a>
+    <a href="clients.html" class="nav-item"><span class="icon">👥</span> Clients</a>
+    <a href="appointments.html" class="nav-item"><span class="icon">📅</span> Appointments</a>
+    <div class="nav-label">Finance</div>
+    <a href="invoices.html" class="nav-item"><span class="icon">📋</span> Invoices</a>
+    <a href="activity.html" class="nav-item"><span class="icon">⏱</span> Activity Log</a>
+    <div class="nav-label">Site</div>
+    <a href="/" class="nav-item"><span class="icon">🌐</span> View Website</a>
+  </nav>
+  <div class="sidebar-footer">
+    <span class="user-email" id="userEmail">Loading...</span>
+    <button class="logout-btn" onclick="handleLogout()">Sign Out</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title" id="greeting">Welcome, Debora! 👋</h1>
+      <p class="page-date" id="currentDate"></p>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card highlight">
+      <div class="stat-label">Total Earned (2026)</div>
+      <div class="stat-value" id="totalEarned">—</div>
+      <div class="stat-sub">From paid invoices</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Outstanding</div>
+      <div class="stat-value" id="totalOutstanding">—</div>
+      <div class="stat-sub">Awaiting payment</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Active Clients</div>
+      <div class="stat-value" id="activeClients">—</div>
+      <div class="stat-sub">Current</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Appointments</div>
+      <div class="stat-value" id="totalAppointments">—</div>
+      <div class="stat-sub">This year</div>
+    </div>
+  </div>
+
+  <!-- CONTENT GRID -->
+  <div class="content-grid">
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📅 Upcoming Appointments</span>
+        <a href="appointments.html" class="card-link">View all →</a>
+      </div>
+      <div id="apptLoading" class="loading">Loading...</div>
+      <table class="data-table" id="apptTable" style="display:none">
+        <thead><tr><th>Client</th><th>Service</th><th>Date</th><th>Type</th></tr></thead>
+        <tbody id="apptBody"></tbody>
+      </table>
+      <div class="empty-state" id="apptEmpty" style="display:none">
+        <div class="icon">📅</div>No upcoming appointments
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">💰 Outstanding Invoices</span>
+        <a href="invoices.html" class="card-link">View all →</a>
+      </div>
+      <div id="invLoading" class="loading">Loading...</div>
+      <table class="data-table" id="invTable" style="display:none">
+        <thead><tr><th>Invoice</th><th>Client</th><th>Amount</th><th>Status</th></tr></thead>
+        <tbody id="invBody"></tbody>
+      </table>
+      <div class="empty-state" id="invEmpty" style="display:none">
+        <div class="icon">✅</div>No outstanding invoices!
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">👥 Active Clients</span>
+        <a href="clients.html" class="card-link">View all →</a>
+      </div>
+      <div id="clientLoading" class="loading">Loading...</div>
+      <table class="data-table" id="clientTable" style="display:none">
+        <thead><tr><th>Name</th><th>Phone</th><th>Rate</th></tr></thead>
+        <tbody id="clientBody"></tbody>
+      </table>
+      <div class="empty-state" id="clientEmpty" style="display:none">
+        <div class="icon">👥</div>No active clients
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">⚡ Ready to Invoice</span>
+        <a href="invoices.html" class="card-link">Create invoice →</a>
+      </div>
+      <div id="unbilledLoading" class="loading">Loading...</div>
+      <table class="data-table" id="unbilledTable" style="display:none">
+        <thead><tr><th>Client</th><th>Service</th><th>Charge</th></tr></thead>
+        <tbody id="unbilledBody"></tbody>
+      </table>
+      <div class="empty-state" id="unbilledEmpty" style="display:none">
+        <div class="icon">✅</div>All appointments billed!
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  const SUPABASE_URL = 'https://xdrliaryxuzfohjfmzye.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_LjcWermHw6RN3ZDCpQSvqg_BnccE10n';
+
+  // Date and greeting
+  const now = new Date();
+  const hour = now.getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('greeting').textContent = `${greeting}, Debora! 👋`;
+  document.getElementById('currentDate').textContent = now.toLocaleDateString('en-GB', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  });
+
+  // Auth
+  netlifyIdentity.init({ APIUrl: 'https://dds-consulting.pt/.netlify/identity' });
+  netlifyIdentity.on('init', user => {
+    if (!user) { window.location.href = '/admin/index.html'; return; }
+    document.getElementById('userEmail').textContent = user.email;
+  });
+  netlifyIdentity.on('logout', () => { window.location.href = '/admin/index.html'; });
+
+  function handleLogout() { netlifyIdentity.logout(); }
+
+  // Supabase helper
+  async function query(endpoint) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+      }
+    });
+    return res.json();
+  }
+
+  const eur = v => `€${parseFloat(v || 0).toFixed(2)}`;
+  const fmtDate = d => d ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '—';
+
+  function show(tableId, loadingId, emptyId, hasData) {
+    document.getElementById(loadingId).style.display = 'none';
+    document.getElementById(tableId).style.display = hasData ? 'table' : 'none';
+    document.getElementById(emptyId).style.display = hasData ? 'none' : 'block';
+  }
+
+  async function loadDashboard() {
+    try {
+      const today = now.toISOString().split('T')[0];
+      const yearStart = now.getFullYear() + '-01-01';
+
+      const [clients, appointments, invoices, upcoming, unbilled] = await Promise.all([
+        query('clients?status=eq.Active&select=id,name,phone,hourly_rate'),
+        query(`appointments?date=gte.${yearStart}&select=id`),
+        query('invoices?select=status,total_due,invoice_number,created_at,clients(name)'),
+        query(`appointments?date=gte.${today}&order=date.asc&limit=5&select=*,clients(name)`),
+        query('appointments?ready_for_invoice=eq.true&select=*,clients(name)&limit=5')
+      ]);
+
+      // Stats
+      document.getElementById('activeClients').textContent = clients.length;
+      document.getElementById('totalAppointments').textContent = appointments.length;
+      const paid = invoices.filter(i => i.status === 'Paid').reduce((s, i) => s + parseFloat(i.total_due || 0), 0);
+      const outstanding = invoices.filter(i => i.status !== 'Paid').reduce((s, i) => s + parseFloat(i.total_due || 0), 0);
+      document.getElementById('totalEarned').textContent = eur(paid);
+      document.getElementById('totalOutstanding').textContent = eur(outstanding);
+
+      // Upcoming appointments
+      show('apptTable', 'apptLoading', 'apptEmpty', upcoming.length > 0);
+      document.getElementById('apptBody').innerHTML = upcoming.map(a => `
+        <tr>
+          <td>${a.clients?.name || '—'}</td>
+          <td>${a.service_type || '—'}</td>
+          <td>${fmtDate(a.date)}</td>
+          <td><span class="badge badge-teal">${a.support_type || '—'}</span></td>
+        </tr>`).join('');
+
+      // Outstanding invoices
+      const outInv = invoices.filter(i => i.status !== 'Paid');
+      show('invTable', 'invLoading', 'invEmpty', outInv.length > 0);
+      document.getElementById('invBody').innerHTML = outInv.map(i => `
+        <tr>
+          <td>${i.invoice_number}</td>
+          <td>${i.clients?.name || '—'}</td>
+          <td>${eur(i.total_due)}</td>
+          <td><span class="badge ${i.status === 'Sent' ? 'badge-amber' : 'badge-teal'}">${i.status}</span></td>
+        </tr>`).join('');
+
+      // Active clients
+      show('clientTable', 'clientLoading', 'clientEmpty', clients.length > 0);
+      document.getElementById('clientBody').innerHTML = clients.map(c => `
+        <tr>
+          <td>${c.name}</td>
+          <td>${c.phone || '—'}</td>
+          <td>${eur(c.hourly_rate)}/hr</td>
+        </tr>`).join('');
+
+      // Ready to invoice
+      show('unbilledTable', 'unbilledLoading', 'unbilledEmpty', unbilled.length > 0);
+      document.getElementById('unbilledBody').innerHTML = unbilled.map(a => `
+        <tr>
+          <td>${a.clients?.name || '—'}</td>
+          <td>${a.service_type || '—'}</td>
+          <td>${eur(a.appointment_charge)}</td>
+        </tr>`).join('');
+
+    } catch (err) {
+      console.error('Dashboard error:', err);
+    }
+  }
+
+  loadDashboard();
+</script>
+</body>
+</html>

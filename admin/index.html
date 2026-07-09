@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DDS Consulting — Admin Login</title>
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f4;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-wrap {
+      background: #fff;
+      border-radius: 16px;
+      padding: 3rem 2.5rem;
+      width: min(420px, 90vw);
+      box-shadow: 0 8px 40px rgba(0,0,0,.08);
+      text-align: center;
+    }
+
+    .login-logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 16px;
+      margin: 0 auto 1.5rem;
+      display: block;
+    }
+
+    .login-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #093b3c;
+      margin-bottom: .4rem;
+    }
+
+    .login-sub {
+      font-size: .88rem;
+      color: #8c9884;
+      margin-bottom: 2rem;
+    }
+
+    .login-btn {
+      display: inline-block;
+      width: 100%;
+      padding: .9rem 2rem;
+      background: #0d4d4c;
+      color: #fff;
+      font-size: .95rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: background .2s, transform .2s;
+      box-shadow: 0 4px 16px rgba(13,77,76,.25);
+    }
+    .login-btn:hover {
+      background: #1a6e6d;
+      transform: translateY(-2px);
+    }
+
+    .login-footer {
+      margin-top: 2rem;
+      font-size: .78rem;
+      color: #8c9884;
+    }
+
+    .status-msg {
+      margin-top: 1rem;
+      font-size: .85rem;
+      color: #c0392b;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-wrap">
+  <img src="../dds-logo-clean.png" alt="DDS Consulting" class="login-logo"/>
+  <h1 class="login-title">Admin Portal</h1>
+  <p class="login-sub">DDS Consulting · Debora Da Silva</p>
+  <button class="login-btn" onclick="openLogin()">Sign In</button>
+  <p class="status-msg" id="statusMsg">Access denied. Please sign in.</p>
+  <p class="login-footer">Authorised users only · DDS Consulting © 2026</p>
+</div>
+
+<script>
+  // Initialise Netlify Identity
+  netlifyIdentity.init({
+    APIUrl: 'https://dds-consulting.pt/.netlify/identity'
+  });
+
+  // If already logged in, redirect to dashboard
+  netlifyIdentity.on('init', user => {
+    if (user) {
+      window.location.href = '/admin/dashboard.html';
+    }
+  });
+
+  // On successful login, redirect to dashboard
+  netlifyIdentity.on('login', user => {
+    netlifyIdentity.close();
+    window.location.href = '/admin/dashboard.html';
+  });
+
+  function openLogin() {
+    netlifyIdentity.open('login');
+  }
+</script>
+
+</body>
+</html>
