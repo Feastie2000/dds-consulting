@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DDS Consulting — Clients</title>
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal:      #0d4d4c;
+      --teal-lt:   #1a6e6d;
+      --teal-pale: #e0eaea;
+      --cream:     #f4f6f4;
+      --white:     #ffffff;
+      --ink:       #071f1f;
+      --ink-soft:  #3d5452;
+      --ink-ghost: #8c9884;
+      --line:      #d4ddd6;
+      --red:       #c0392b;
+      --red-pale:  #fdecea;
+      --green:     #27ae60;
+      --amber:     #f39c12;
+      --sidebar-w: 240px;
+    }
+
+    body { font-family: 'Segoe UI', sans-serif; background: var(--cream); color: var(--ink); display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { width: var(--sidebar-w); background: var(--teal); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 100; }
+    .sidebar-logo { display: flex; align-items: center; gap: .8rem; padding: 1.5rem 1.2rem; border-bottom: 1px solid rgba(255,255,255,.1); }
+    .sidebar-logo img { width: 40px; height: 40px; border-radius: 8px; }
+    .sidebar-logo-text { font-size: .95rem; font-weight: 700; color: #fff; line-height: 1.2; }
+    .sidebar-logo-sub { font-size: .7rem; color: rgba(255,255,255,.5); }
+    .sidebar-nav { flex: 1; padding: 1.2rem 0; }
+    .nav-label { font-size: .65rem; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; color: rgba(255,255,255,.35); padding: .8rem 1.2rem .4rem; }
+    .nav-item { display: flex; align-items: center; gap: .8rem; padding: .75rem 1.2rem; color: rgba(255,255,255,.7); text-decoration: none; font-size: .88rem; font-weight: 500; transition: background .2s, color .2s; border-left: 3px solid transparent; }
+    .nav-item:hover { background: rgba(255,255,255,.08); color: #fff; }
+    .nav-item.active { background: rgba(255,255,255,.12); color: #fff; border-left-color: #fff; }
+    .nav-item .icon { font-size: 1.1rem; width: 20px; text-align: center; }
+    .sidebar-footer { padding: 1.2rem; border-top: 1px solid rgba(255,255,255,.1); }
+    .user-email { font-size: .82rem; color: rgba(255,255,255,.8); font-weight: 500; display: block; margin-bottom: .6rem; }
+    .logout-btn { display: block; width: 100%; padding: .6rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.7); border: 1px solid rgba(255,255,255,.15); border-radius: 8px; font-size: .82rem; cursor: pointer; transition: background .2s; text-align: center; }
+    .logout-btn:hover { background: rgba(255,255,255,.2); color: #fff; }
+
+    /* ── MAIN ── */
+    .main { margin-left: var(--sidebar-w); flex: 1; padding: 2rem; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
+    .page-title { font-size: 1.6rem; font-weight: 700; color: var(--ink); }
+    .page-sub { font-size: .85rem; color: var(--ink-ghost); margin-top: .3rem; }
+
+    /* ── BUTTONS ── */
+    .btn { display: inline-flex; align-items: center; gap: .4rem; padding: .65rem 1.3rem; border-radius: 8px; font-size: .85rem; font-weight: 600; cursor: pointer; border: none; transition: background .2s, transform .2s; }
+    .btn-primary { background: var(--teal); color: #fff; }
+    .btn-primary:hover { background: var(--teal-lt); transform: translateY(-1px); }
+    .btn-sm { padding: .4rem .8rem; font-size: .78rem; border-radius: 6px; }
+    .btn-outline { background: transparent; border: 1.5px solid var(--line); color: var(--ink-soft); }
+    .btn-outline:hover { border-color: var(--teal); color: var(--teal); }
+    .btn-danger { background: var(--red-pale); color: var(--red); border: 1px solid rgba(192,57,43,.2); }
+    .btn-danger:hover { background: var(--red); color: #fff; }
+
+    /* ── TOOLBAR ── */
+    .toolbar { display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .search-box { display: flex; align-items: center; gap: .5rem; background: var(--white); border: 1.5px solid var(--line); border-radius: 8px; padding: .5rem 1rem; flex: 1; max-width: 360px; }
+    .search-box input { border: none; outline: none; font-size: .88rem; color: var(--ink); background: transparent; width: 100%; }
+    .filter-tabs { display: flex; gap: .4rem; }
+    .filter-tab { padding: .4rem 1rem; border-radius: 6px; font-size: .8rem; font-weight: 600; cursor: pointer; border: 1.5px solid var(--line); background: var(--white); color: var(--ink-soft); transition: all .2s; }
+    .filter-tab.active { background: var(--teal); color: #fff; border-color: var(--teal); }
+
+    /* ── TABLE ── */
+    .card { background: var(--white); border-radius: 14px; border: 1.5px solid var(--line); overflow: hidden; }
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th { font-size: .72rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-ghost); padding: .9rem 1.2rem; text-align: left; border-bottom: 1px solid var(--line); background: var(--cream); }
+    .data-table td { padding: 1rem 1.2rem; font-size: .88rem; color: var(--ink-soft); border-bottom: 1px solid var(--line); vertical-align: middle; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: #f8fafa; }
+    .client-name { font-weight: 600; color: var(--ink); }
+    .client-id { font-size: .72rem; color: var(--ink-ghost); margin-top: .2rem; }
+    .actions { display: flex; gap: .4rem; }
+    .badge { display: inline-block; padding: .25rem .7rem; border-radius: 50px; font-size: .72rem; font-weight: 600; }
+    .badge-green { background: rgba(39,174,96,.1); color: var(--green); }
+    .badge-grey { background: rgba(0,0,0,.06); color: var(--ink-ghost); }
+    .empty-state { text-align: center; padding: 3rem; color: var(--ink-ghost); }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .loading { text-align: center; padding: 2rem; color: var(--ink-ghost); }
+
+    /* ── MODAL ── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 200; display: none; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--white); border-radius: 16px; width: min(600px, 95vw); max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.2); }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 1.5rem; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--white); z-index: 1; }
+    .modal-title { font-size: 1.1rem; font-weight: 700; color: var(--ink); }
+    .modal-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--ink-ghost); padding: .2rem; }
+    .modal-close:hover { color: var(--ink); }
+    .modal-body { padding: 1.5rem; }
+    .modal-footer { padding: 1.2rem 1.5rem; border-top: 1px solid var(--line); display: flex; gap: .8rem; justify-content: flex-end; }
+
+    /* ── FORM ── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: .4rem; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label { font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-ghost); }
+    .form-group input, .form-group select, .form-group textarea {
+      font-family: 'Segoe UI', sans-serif; font-size: .9rem; color: var(--ink);
+      background: var(--cream); border: 1.5px solid var(--line); border-radius: 8px;
+      padding: .7rem .9rem; outline: none; transition: border-color .2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--teal); }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-section { font-size: .8rem; font-weight: 700; color: var(--teal); text-transform: uppercase; letter-spacing: .1em; margin: 1.2rem 0 .6rem; padding-bottom: .4rem; border-bottom: 1px solid var(--line); grid-column: 1 / -1; }
+
+    /* ── CONFIRM MODAL ── */
+    .confirm-modal { background: var(--white); border-radius: 16px; width: min(400px, 95vw); padding: 2rem; box-shadow: 0 20px 60px rgba(0,0,0,.2); text-align: center; }
+    .confirm-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .confirm-title { font-size: 1.1rem; font-weight: 700; color: var(--ink); margin-bottom: .6rem; }
+    .confirm-text { font-size: .88rem; color: var(--ink-soft); line-height: 1.6; margin-bottom: 1.5rem; }
+    .confirm-actions { display: flex; gap: .8rem; justify-content: center; }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <img src="../dds-logo-clean.png" alt="DDS"/>
+    <div>
+      <div class="sidebar-logo-text">DDS Consulting</div>
+      <div class="sidebar-logo-sub">Admin Portal</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a href="dashboard.html" class="nav-item"><span class="icon">📊</span> Dashboard</a>
+    <a href="clients.html" class="nav-item active"><span class="icon">👥</span> Clients</a>
+    <a href="appointments.html" class="nav-item"><span class="icon">📅</span> Appointments</a>
+    <div class="nav-label">Finance</div>
+    <a href="invoices.html" class="nav-item"><span class="icon">📋</span> Invoices</a>
+    <a href="activity.html" class="nav-item"><span class="icon">⏱</span> Activity Log</a>
+    <div class="nav-label">Site</div>
+    <a href="/" class="nav-item"><span class="icon">🌐</span> View Website</a>
+  </nav>
+  <div class="sidebar-footer">
+    <span class="user-email" id="userEmail">Loading...</span>
+    <button class="logout-btn" onclick="handleLogout()">Sign Out</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Clients</h1>
+      <p class="page-sub" id="clientCount">Loading...</p>
+    </div>
+    <button class="btn btn-primary" onclick="openAddClient()">+ Add Client</button>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <span>🔍</span>
+      <input type="text" id="searchInput" placeholder="Search clients..." oninput="filterClients()"/>
+    </div>
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="setFilter('Active', this)">Active</button>
+      <button class="filter-tab" onclick="setFilter('Inactive', this)">Inactive</button>
+      <button class="filter-tab" onclick="setFilter('All', this)">All</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="loadingState" class="loading">Loading clients...</div>
+    <table class="data-table" id="clientTable" style="display:none">
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th>Contact</th>
+          <th>Rate</th>
+          <th>Tier</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="clientBody"></tbody>
+    </table>
+    <div class="empty-state" id="emptyState" style="display:none">
+      <div class="icon">👥</div>
+      <p>No clients found</p>
+    </div>
+  </div>
+</main>
+
+<!-- ADD/EDIT CLIENT MODAL -->
+<div class="modal-overlay" id="clientModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modalTitle">Add New Client</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-section">Personal Details</div>
+        <div class="form-group full">
+          <label>Full Name *</label>
+          <input type="text" id="f_name" placeholder="e.g. John & Jane Smith"/>
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="tel" id="f_phone" placeholder="+351 912 345 678"/>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="f_email" placeholder="client@email.com"/>
+        </div>
+        <div class="form-group">
+          <label>Preferred Contact</label>
+          <select id="f_preferred_contact">
+            <option>WhatsApp</option>
+            <option>Email</option>
+            <option>Phone</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Nationality</label>
+          <input type="text" id="f_nationality" placeholder="e.g. British"/>
+        </div>
+        <div class="form-group">
+          <label>NIF</label>
+          <input type="text" id="f_nif" placeholder="Portuguese tax number"/>
+        </div>
+        <div class="form-group full">
+          <label>Address</label>
+          <input type="text" id="f_address" placeholder="Full address"/>
+        </div>
+        <div class="form-group full">
+          <label>Emergency Contact</label>
+          <input type="text" id="f_emergency_contact" placeholder="Name and phone number"/>
+        </div>
+        <div class="form-group full">
+          <label>Family Notes</label>
+          <textarea id="f_family_notes" placeholder="Any useful notes about the client or family..."></textarea>
+        </div>
+
+        <div class="form-section">Billing Details</div>
+        <div class="form-group">
+          <label>Pricing Tier</label>
+          <select id="f_pricing_tier">
+            <option>Standard</option>
+            <option>Remote Support</option>
+            <option>Reduced Rate</option>
+            <option>Custom</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Hourly Rate (€)</label>
+          <input type="number" id="f_hourly_rate" placeholder="35.00" step="0.01" min="0"/>
+        </div>
+        <div class="form-group">
+          <label>Mileage Method</label>
+          <select id="f_mileage_method">
+            <option>Zone</option>
+            <option>Per KM</option>
+            <option>None</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="f_status">
+            <option>Active</option>
+            <option>Inactive</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveClient()">Save Client</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="confirm-modal">
+    <div class="confirm-icon" id="confirmIcon">⚠️</div>
+    <div class="confirm-title" id="confirmTitle">Are you sure?</div>
+    <div class="confirm-text" id="confirmText"></div>
+    <div class="confirm-actions">
+      <button class="btn btn-outline" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-danger" id="confirmBtn" onclick="executeConfirm()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://xdrliaryxuzfohjfmzye.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_LjcWermHw6RN3ZDCpQSvqg_BnccE10n';
+
+  let allClients = [];
+  let currentFilter = 'Active';
+  let editingId = null;
+  let confirmAction = null;
+
+  // Auth
+  netlifyIdentity.init({ APIUrl: 'https://dds-consulting.pt/.netlify/identity' });
+  netlifyIdentity.on('init', user => {
+    if (!user) { window.location.href = '/admin/index.html'; return; }
+    document.getElementById('userEmail').textContent = user.email;
+  });
+  netlifyIdentity.on('logout', () => { window.location.href = '/admin/index.html'; });
+  function handleLogout() { netlifyIdentity.logout(); }
+
+  // Supabase helpers
+  async function sbFetch(endpoint, options = {}) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': options.prefer || 'return=representation',
+        ...options.headers
+      },
+      ...options
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
+  }
+
+  function generateClientId() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    let id = 'DDS-CL-';
+    for (let i = 0; i < 4; i++) id += chars[Math.floor(Math.random() * chars.length)];
+    return id;
+  }
+
+  // Load clients
+  async function loadClients() {
+    try {
+      allClients = await sbFetch('clients?order=name.asc&select=*');
+      renderClients();
+    } catch (err) {
+      console.error(err);
+      document.getElementById('loadingState').textContent = 'Error loading clients.';
+    }
+  }
+
+  function setFilter(filter, el) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    renderClients();
+  }
+
+  function filterClients() { renderClients(); }
+
+  function renderClients() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    let filtered = allClients.filter(c => {
+      const matchFilter = currentFilter === 'All' || c.status === currentFilter;
+      const matchSearch = !search || c.name.toLowerCase().includes(search) ||
+        (c.email || '').toLowerCase().includes(search) ||
+        (c.phone || '').includes(search);
+      return matchFilter && matchSearch;
+    });
+
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('clientCount').textContent = `${filtered.length} client${filtered.length !== 1 ? 's' : ''} shown`;
+
+    if (filtered.length === 0) {
+      document.getElementById('clientTable').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'block';
+      return;
+    }
+
+    document.getElementById('clientTable').style.display = 'table';
+    document.getElementById('emptyState').style.display = 'none';
+
+    document.getElementById('clientBody').innerHTML = filtered.map(c => {
+      const isGdprEligible = c.status === 'Inactive' && c.deleted_at &&
+        (new Date() - new Date(c.deleted_at)) > (2 * 365 * 24 * 60 * 60 * 1000);
+      return `
+      <tr>
+        <td>
+          <div class="client-name">${c.name}</div>
+          <div class="client-id">${c.client_id}</div>
+        </td>
+        <td>
+          ${c.phone ? `📱 ${c.phone}<br>` : ''}
+          ${c.email ? `✉️ ${c.email}` : ''}
+          ${!c.phone && !c.email ? '—' : ''}
+        </td>
+        <td>€${parseFloat(c.hourly_rate || 0).toFixed(2)}/hr</td>
+        <td>${c.pricing_tier || '—'}</td>
+        <td><span class="badge ${c.status === 'Active' ? 'badge-green' : 'badge-grey'}">${c.status}</span></td>
+        <td>
+          <div class="actions">
+            <button class="btn btn-sm btn-outline" onclick="openEditClient('${c.id}')">✏️ Edit</button>
+            ${c.status === 'Active'
+              ? `<button class="btn btn-sm btn-danger" onclick="confirmDeactivate('${c.id}', '${c.name.replace(/'/g, "\\'")}')">Archive</button>`
+              : `<button class="btn btn-sm btn-outline" onclick="reactivate('${c.id}')">Reactivate</button>`
+            }
+            ${isGdprEligible
+              ? `<button class="btn btn-sm btn-danger" onclick="confirmHardDelete('${c.id}', '${c.name.replace(/'/g, "\\'")}')">🗑 GDPR Delete</button>`
+              : ''
+            }
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Add/Edit modal
+  function openAddClient() {
+    editingId = null;
+    document.getElementById('modalTitle').textContent = 'Add New Client';
+    clearForm();
+    document.getElementById('clientModal').classList.add('open');
+  }
+
+  function openEditClient(id) {
+    const client = allClients.find(c => c.id === id);
+    if (!client) return;
+    editingId = id;
+    document.getElementById('modalTitle').textContent = 'Edit Client';
+    document.getElementById('f_name').value = client.name || '';
+    document.getElementById('f_phone').value = client.phone || '';
+    document.getElementById('f_email').value = client.email || '';
+    document.getElementById('f_preferred_contact').value = client.preferred_contact || 'WhatsApp';
+    document.getElementById('f_nationality').value = client.nationality || '';
+    document.getElementById('f_nif').value = client.nif || '';
+    document.getElementById('f_address').value = client.address || '';
+    document.getElementById('f_emergency_contact').value = client.emergency_contact || '';
+    document.getElementById('f_family_notes').value = client.family_notes || '';
+    document.getElementById('f_pricing_tier').value = client.pricing_tier || 'Standard';
+    document.getElementById('f_hourly_rate').value = client.hourly_rate || '';
+    document.getElementById('f_mileage_method').value = client.mileage_method || 'Zone';
+    document.getElementById('f_status').value = client.status || 'Active';
+    document.getElementById('clientModal').classList.add('open');
+  }
+
+  function clearForm() {
+    ['f_name','f_phone','f_email','f_nationality','f_nif','f_address','f_emergency_contact','f_family_notes','f_hourly_rate'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('f_preferred_contact').value = 'WhatsApp';
+    document.getElementById('f_pricing_tier').value = 'Standard';
+    document.getElementById('f_mileage_method').value = 'Zone';
+    document.getElementById('f_status').value = 'Active';
+  }
+
+  function closeModal() { document.getElementById('clientModal').classList.remove('open'); }
+
+  async function saveClient() {
+    const name = document.getElementById('f_name').value.trim();
+    if (!name) { alert('Client name is required!'); return; }
+
+    const data = {
+      name,
+      phone: document.getElementById('f_phone').value.trim() || null,
+      email: document.getElementById('f_email').value.trim() || null,
+      preferred_contact: document.getElementById('f_preferred_contact').value,
+      nationality: document.getElementById('f_nationality').value.trim() || null,
+      nif: document.getElementById('f_nif').value.trim() || null,
+      address: document.getElementById('f_address').value.trim() || null,
+      emergency_contact: document.getElementById('f_emergency_contact').value.trim() || null,
+      family_notes: document.getElementById('f_family_notes').value.trim() || null,
+      pricing_tier: document.getElementById('f_pricing_tier').value,
+      hourly_rate: parseFloat(document.getElementById('f_hourly_rate').value) || 0,
+      mileage_method: document.getElementById('f_mileage_method').value,
+      status: document.getElementById('f_status').value,
+    };
+
+    try {
+      if (editingId) {
+        await sbFetch(`clients?id=eq.${editingId}`, { method: 'PATCH', body: JSON.stringify(data) });
+      } else {
+        data.client_id = generateClientId();
+        await sbFetch('clients', { method: 'POST', body: JSON.stringify(data) });
+      }
+      closeModal();
+      await loadClients();
+    } catch (err) {
+      console.error(err);
+      alert('Error saving client. Please try again.');
+    }
+  }
+
+  // Soft delete
+  function confirmDeactivate(id, name) {
+    confirmAction = () => deactivate(id);
+    document.getElementById('confirmIcon').textContent = '📁';
+    document.getElementById('confirmTitle').textContent = 'Archive Client?';
+    document.getElementById('confirmText').textContent = `${name} will be marked as Inactive. All their appointments and invoices will be preserved. You can reactivate them at any time.`;
+    document.getElementById('confirmBtn').textContent = 'Archive';
+    document.getElementById('confirmModal').classList.add('open');
+  }
+
+  async function deactivate(id) {
+    await sbFetch(`clients?id=eq.${id}`, { method: 'PATCH', body: JSON.stringify({ status: 'Inactive', deleted_at: new Date().toISOString() }) });
+    closeConfirm();
+    await loadClients();
+  }
+
+  async function reactivate(id) {
+    await sbFetch(`clients?id=eq.${id}`, { method: 'PATCH', body: JSON.stringify({ status: 'Active', deleted_at: null }) });
+    await loadClients();
+  }
+
+  // Hard delete (GDPR)
+  function confirmHardDelete(id, name) {
+    confirmAction = () => hardDelete(id);
+    document.getElementById('confirmIcon').textContent = '⚠️';
+    document.getElementById('confirmTitle').textContent = 'Permanently Delete?';
+    document.getElementById('confirmText').textContent = `This will permanently delete ${name} and ALL their associated appointments, invoices and activity records. This cannot be undone. This action is for GDPR compliance only.`;
+    document.getElementById('confirmBtn').textContent = '🗑 Permanently Delete';
+    document.getElementById('confirmModal').classList.add('open');
+  }
+
+  async function hardDelete(id) {
+    await sbFetch(`clients?id=eq.${id}`, { method: 'DELETE', prefer: 'return=minimal' });
+    closeConfirm();
+    await loadClients();
+  }
+
+  function closeConfirm() {
+    document.getElementById('confirmModal').classList.remove('open');
+    confirmAction = null;
+  }
+
+  function executeConfirm() {
+    if (confirmAction) confirmAction();
+  }
+
+  // Close modals on overlay click
+  document.getElementById('clientModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+  document.getElementById('confirmModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeConfirm(); });
+
+  loadClients();
+</script>
+</body>
+</html>
