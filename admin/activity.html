@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DDS Consulting — Activity Log</title>
+  <link rel="icon" type="image/png" href="/favicon.png"/>
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal:      #0d4d4c;
+      --teal-lt:   #1a6e6d;
+      --teal-pale: #e0eaea;
+      --cream:     #f4f6f4;
+      --white:     #ffffff;
+      --ink:       #071f1f;
+      --ink-soft:  #3d5452;
+      --ink-ghost: #8c9884;
+      --line:      #d4ddd6;
+      --red:       #c0392b;
+      --red-pale:  #fdecea;
+      --green:     #27ae60;
+      --amber:     #f39c12;
+      --sidebar-w: 240px;
+    }
+
+    body { font-family: 'Segoe UI', sans-serif; background: var(--cream); color: var(--ink); display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { width: var(--sidebar-w); background: var(--teal); min-height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; z-index: 100; }
+    .sidebar-logo { display: flex; align-items: center; gap: .8rem; padding: 1.5rem 1.2rem; border-bottom: 1px solid rgba(255,255,255,.1); }
+    .sidebar-logo img { width: 40px; height: 40px; border-radius: 50%; object-fit: contain; }
+    .sidebar-logo-text { font-size: .95rem; font-weight: 700; color: #fff; line-height: 1.2; }
+    .sidebar-logo-sub { font-size: .7rem; color: rgba(255,255,255,.5); }
+    .sidebar-nav { flex: 1; padding: 1.2rem 0; }
+    .nav-label { font-size: .65rem; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; color: rgba(255,255,255,.35); padding: .8rem 1.2rem .4rem; }
+    .nav-item { display: flex; align-items: center; gap: .8rem; padding: .75rem 1.2rem; color: rgba(255,255,255,.7); text-decoration: none; font-size: .88rem; font-weight: 500; transition: background .2s, color .2s; border-left: 3px solid transparent; }
+    .nav-item:hover { background: rgba(255,255,255,.08); color: #fff; }
+    .nav-item.active { background: rgba(255,255,255,.12); color: #fff; border-left-color: #fff; }
+    .nav-item .icon { font-size: 1.1rem; width: 20px; text-align: center; }
+    .sidebar-footer { padding: 1.2rem; border-top: 1px solid rgba(255,255,255,.1); }
+    .user-email { font-size: .82rem; color: rgba(255,255,255,.8); font-weight: 500; display: block; margin-bottom: .6rem; }
+    .logout-btn { display: block; width: 100%; padding: .6rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.7); border: 1px solid rgba(255,255,255,.15); border-radius: 8px; font-size: .82rem; cursor: pointer; transition: background .2s; text-align: center; }
+    .logout-btn:hover { background: rgba(255,255,255,.2); color: #fff; }
+
+    /* ── MAIN ── */
+    .main { margin-left: var(--sidebar-w); flex: 1; padding: 2rem; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
+    .page-title { font-size: 1.6rem; font-weight: 700; color: var(--ink); }
+    .page-sub { font-size: .85rem; color: var(--ink-ghost); margin-top: .3rem; }
+
+    /* ── STATS ── */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { background: var(--white); border-radius: 12px; padding: 1.2rem 1.5rem; border: 1.5px solid var(--line); }
+    .stat-label { font-size: .72rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-ghost); margin-bottom: .4rem; }
+    .stat-value { font-size: 1.6rem; font-weight: 700; color: var(--teal); }
+    .stat-card.green .stat-value { color: var(--green); }
+    .stat-card.amber .stat-value { color: var(--amber); }
+
+    /* ── BUTTONS ── */
+    .btn { display: inline-flex; align-items: center; gap: .4rem; padding: .65rem 1.3rem; border-radius: 8px; font-size: .85rem; font-weight: 600; cursor: pointer; border: none; transition: background .2s, transform .2s; }
+    .btn-primary { background: var(--teal); color: #fff; }
+    .btn-primary:hover { background: var(--teal-lt); transform: translateY(-1px); }
+    .btn-sm { padding: .4rem .8rem; font-size: .78rem; border-radius: 6px; }
+    .btn-outline { background: transparent; border: 1.5px solid var(--line); color: var(--ink-soft); }
+    .btn-outline:hover { border-color: var(--teal); color: var(--teal); }
+    .btn-danger { background: var(--red-pale); color: var(--red); border: 1px solid rgba(192,57,43,.2); }
+    .btn-danger:hover { background: var(--red); color: #fff; }
+
+    /* ── TOOLBAR ── */
+    .toolbar { display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .search-box { display: flex; align-items: center; gap: .5rem; background: var(--white); border: 1.5px solid var(--line); border-radius: 8px; padding: .5rem 1rem; flex: 1; max-width: 300px; }
+    .search-box input { border: none; outline: none; font-size: .88rem; color: var(--ink); background: transparent; width: 100%; }
+    .filter-tabs { display: flex; gap: .4rem; }
+    .filter-tab { padding: .4rem 1rem; border-radius: 6px; font-size: .8rem; font-weight: 600; cursor: pointer; border: 1.5px solid var(--line); background: var(--white); color: var(--ink-soft); transition: all .2s; }
+    .filter-tab.active { background: var(--teal); color: #fff; border-color: var(--teal); }
+
+    /* ── TABLE ── */
+    .card { background: var(--white); border-radius: 14px; border: 1.5px solid var(--line); overflow: hidden; }
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th { font-size: .72rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-ghost); padding: .9rem 1.2rem; text-align: left; border-bottom: 1px solid var(--line); background: var(--cream); }
+    .data-table td { padding: .9rem 1.2rem; font-size: .88rem; color: var(--ink-soft); border-bottom: 1px solid var(--line); vertical-align: middle; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: #f8fafa; }
+    .act-client { font-weight: 600; color: var(--ink); }
+    .act-id { font-size: .72rem; color: var(--ink-ghost); }
+    .actions { display: flex; gap: .4rem; }
+    .badge { display: inline-block; padding: .25rem .7rem; border-radius: 50px; font-size: .72rem; font-weight: 600; }
+    .badge-green { background: rgba(39,174,96,.1); color: var(--green); }
+    .badge-grey { background: rgba(0,0,0,.06); color: var(--ink-ghost); }
+    .badge-teal { background: var(--teal-pale); color: var(--teal); }
+    .empty-state { text-align: center; padding: 3rem; color: var(--ink-ghost); }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .loading { text-align: center; padding: 2rem; color: var(--ink-ghost); }
+
+    /* ── MODAL ── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 200; display: none; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--white); border-radius: 16px; width: min(560px, 95vw); max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.2); }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 1.5rem; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--white); z-index: 1; }
+    .modal-title { font-size: 1.1rem; font-weight: 700; color: var(--ink); }
+    .modal-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--ink-ghost); }
+    .modal-close:hover { color: var(--ink); }
+    .modal-body { padding: 1.5rem; }
+    .modal-footer { padding: 1.2rem 1.5rem; border-top: 1px solid var(--line); display: flex; gap: .8rem; justify-content: flex-end; }
+
+    /* ── FORM ── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: .4rem; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label { font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-ghost); }
+    .form-group input, .form-group select, .form-group textarea {
+      font-family: 'Segoe UI', sans-serif; font-size: .9rem; color: var(--ink);
+      background: var(--cream); border: 1.5px solid var(--line); border-radius: 8px;
+      padding: .7rem .9rem; outline: none; transition: border-color .2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--teal); }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+
+    .charge-preview {
+      grid-column: 1 / -1;
+      background: var(--teal-pale);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      font-size: .88rem;
+      color: var(--teal);
+      font-weight: 600;
+    }
+
+    /* ── CONFIRM MODAL ── */
+    .confirm-modal { background: var(--white); border-radius: 16px; width: min(400px, 95vw); padding: 2rem; box-shadow: 0 20px 60px rgba(0,0,0,.2); text-align: center; }
+    .confirm-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .confirm-title { font-size: 1.1rem; font-weight: 700; color: var(--ink); margin-bottom: .6rem; }
+    .confirm-text { font-size: .88rem; color: var(--ink-soft); line-height: 1.6; margin-bottom: 1.5rem; }
+    .confirm-actions { display: flex; gap: .8rem; justify-content: center; }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <img src="../dds-logo-clean.png" alt="DDS"/>
+    <div>
+      <div class="sidebar-logo-text">DDS Consulting</div>
+      <div class="sidebar-logo-sub">Admin Portal</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a href="dashboard.html" class="nav-item"><span class="icon">📊</span> Dashboard</a>
+    <a href="clients.html" class="nav-item"><span class="icon">👥</span> Clients</a>
+    <a href="appointments.html" class="nav-item"><span class="icon">📅</span> Appointments</a>
+    <div class="nav-label">Finance</div>
+    <a href="invoices.html" class="nav-item"><span class="icon">📋</span> Invoices</a>
+    <a href="activity.html" class="nav-item active"><span class="icon">⏱</span> Activity Log</a>
+    <div class="nav-label">Site</div>
+    <a href="/" class="nav-item"><span class="icon">🌐</span> View Website</a>
+  </nav>
+  <div class="sidebar-footer">
+    <span class="user-email" id="userEmail">Loading...</span>
+    <button class="logout-btn" onclick="handleLogout()">Sign Out</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Activity Log</h1>
+      <p class="page-sub" id="actCount">Loading...</p>
+    </div>
+    <button class="btn btn-primary" onclick="openAdd()">+ Log Activity</button>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Total Activities</div>
+      <div class="stat-value" id="statTotal">—</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">Total Billable</div>
+      <div class="stat-value" id="statBillable">—</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="stat-label">Total Minutes</div>
+      <div class="stat-value" id="statMinutes">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Unbilled Amount</div>
+      <div class="stat-value" id="statUnbilled">—</div>
+    </div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="search-box">
+      <span>🔍</span>
+      <input type="text" id="searchInput" placeholder="Search activities..." oninput="renderActivities()"/>
+    </div>
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="setFilter('All', this)">All</button>
+      <button class="filter-tab" onclick="setFilter('billable', this)">Billable</button>
+      <button class="filter-tab" onclick="setFilter('unbilled', this)">Not Yet Invoiced</button>
+      <button class="filter-tab" onclick="setFilter('non-billable', this)">Non-Billable</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="loadingState" class="loading">Loading activities...</div>
+    <table class="data-table" id="actTable" style="display:none">
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th>Activity Type</th>
+          <th>Date</th>
+          <th>Duration</th>
+          <th>Rate</th>
+          <th>Charge</th>
+          <th>Billable</th>
+          <th>Notes</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="actBody"></tbody>
+    </table>
+    <div class="empty-state" id="emptyState" style="display:none">
+      <div class="icon">⏱</div>
+      <p>No activities found</p>
+    </div>
+  </div>
+</main>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-overlay" id="actModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modalTitle">Log Activity</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>Client *</label>
+          <select id="f_client" onchange="updateRate()">
+            <option value="">Select client...</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Activity Type</label>
+          <select id="f_activity_type">
+            <option>Phone call</option>
+            <option>Email correspondence</option>
+            <option>Document review</option>
+            <option>Research</option>
+            <option>Form completion</option>
+            <option>Translation</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date *</label>
+          <input type="date" id="f_date"/>
+        </div>
+        <div class="form-group">
+          <label>Duration (minutes)</label>
+          <input type="number" id="f_minutes" placeholder="e.g. 15" min="1" step="1" oninput="calculateCharge()"/>
+        </div>
+        <div class="form-group">
+          <label>Hourly Rate (€)</label>
+          <input type="number" id="f_hourly_rate" placeholder="0.00" step="0.01" min="0" oninput="calculateCharge()"/>
+        </div>
+        <div class="form-group">
+          <label>Billable</label>
+          <select id="f_billable">
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </div>
+        <div class="charge-preview" id="chargePreview" style="display:none">
+          💡 Calculated charge: <span id="calcCharge">—</span>
+        </div>
+        <div class="form-group">
+          <label>Charge Amount (€)</label>
+          <input type="number" id="f_charge_amount" placeholder="0.00" step="0.01" min="0"/>
+        </div>
+        <div class="form-group full">
+          <label>Notes</label>
+          <textarea id="f_notes" placeholder="Brief description of the activity..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveActivity()">Save Activity</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="confirm-modal">
+    <div class="confirm-icon">⚠️</div>
+    <div class="confirm-title" id="confirmTitle">Delete Activity?</div>
+    <div class="confirm-text" id="confirmText"></div>
+    <div class="confirm-actions">
+      <button class="btn btn-outline" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-danger" onclick="executeConfirm()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://xdrliaryxuzfohjfmzye.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_LjcWermHw6RN3ZDCpQSvqg_BnccE10n';
+
+  let allActivities = [];
+  let allClients = [];
+  let currentFilter = 'All';
+  let editingId = null;
+  let confirmAction = null;
+
+  // Auth
+  netlifyIdentity.init({ APIUrl: 'https://dds-consulting.pt/.netlify/identity' });
+  netlifyIdentity.on('init', user => {
+    if (!user) { window.location.href = '/admin/index.html'; return; }
+    document.getElementById('userEmail').textContent = user.email;
+  });
+  netlifyIdentity.on('logout', () => { window.location.href = '/admin/index.html'; });
+  function handleLogout() { netlifyIdentity.logout(); }
+
+  // Supabase helper
+  async function sbFetch(endpoint, options = {}) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': options.prefer || 'return=representation',
+        ...options.headers
+      },
+      ...options
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
+  }
+
+  const eur = v => `€${parseFloat(v || 0).toFixed(2)}`;
+  const fmtDate = d => d ? new Date(d + 'T00:00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+  const fmtMins = m => m >= 60 ? `${Math.floor(m/60)}h ${m%60 > 0 ? m%60 + 'm' : ''}`.trim() : `${m}m`;
+
+  function generateActivityId() {
+    const num = allActivities.length + 1;
+    return `DDS-ACT-${num}`;
+  }
+
+  async function loadData() {
+    try {
+      [allActivities, allClients] = await Promise.all([
+        sbFetch('activity_log?order=date.desc&select=*,clients(name)'),
+        sbFetch('clients?status=eq.Active&order=name.asc&select=id,name,hourly_rate')
+      ]);
+
+      // Stats
+      const billable = allActivities.filter(a => a.billable);
+      const unbilled = allActivities.filter(a => a.billable && !a.invoice_id);
+      const totalMins = allActivities.reduce((s, a) => s + (a.minutes || 0), 0);
+      const unbilledAmt = unbilled.reduce((s, a) => s + parseFloat(a.charge_amount || 0), 0);
+
+      document.getElementById('statTotal').textContent = allActivities.length;
+      document.getElementById('statBillable').textContent = eur(billable.reduce((s, a) => s + parseFloat(a.charge_amount || 0), 0));
+      document.getElementById('statMinutes').textContent = fmtMins(totalMins);
+      document.getElementById('statUnbilled').textContent = eur(unbilledAmt);
+
+      // Populate client dropdown
+      const sel = document.getElementById('f_client');
+      sel.innerHTML = '<option value="">Select client...</option>';
+      allClients.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = c.name;
+        opt.dataset.rate = c.hourly_rate;
+        sel.appendChild(opt);
+      });
+
+      renderActivities();
+    } catch (err) {
+      console.error(err);
+      document.getElementById('loadingState').textContent = 'Error loading activities.';
+    }
+  }
+
+  function setFilter(filter, el) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    renderActivities();
+  }
+
+  function renderActivities() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    let filtered = allActivities.filter(a => {
+      const matchFilter =
+        currentFilter === 'All' ? true :
+        currentFilter === 'billable' ? a.billable === true :
+        currentFilter === 'non-billable' ? a.billable === false :
+        currentFilter === 'unbilled' ? (a.billable === true && !a.invoice_id) : true;
+      const matchSearch = !search ||
+        (a.clients?.name || '').toLowerCase().includes(search) ||
+        (a.activity_type || '').toLowerCase().includes(search) ||
+        (a.notes || '').toLowerCase().includes(search);
+      return matchFilter && matchSearch;
+    });
+
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('actCount').textContent = `${filtered.length} activit${filtered.length !== 1 ? 'ies' : 'y'}`;
+
+    if (filtered.length === 0) {
+      document.getElementById('actTable').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'block';
+      return;
+    }
+
+    document.getElementById('actTable').style.display = 'table';
+    document.getElementById('emptyState').style.display = 'none';
+
+    document.getElementById('actBody').innerHTML = filtered.map(a => `
+      <tr>
+        <td>
+          <div class="act-client">${a.clients?.name || '—'}</div>
+          <div class="act-id">${a.activity_id || ''}</div>
+        </td>
+        <td>${a.activity_type || '—'}</td>
+        <td>${fmtDate(a.date)}</td>
+        <td>${fmtMins(a.minutes || 0)}</td>
+        <td>${eur(a.hourly_rate)}/hr</td>
+        <td><strong>${eur(a.charge_amount)}</strong></td>
+        <td><span class="badge ${a.billable ? 'badge-green' : 'badge-grey'}">${a.billable ? 'Yes' : 'No'}</span></td>
+        <td style="max-width:180px;font-size:.8rem">${a.notes || '—'}</td>
+        <td>
+          <div class="actions">
+            <button class="btn btn-sm btn-outline" onclick="openEdit('${a.id}')">✏️</button>
+            <button class="btn btn-sm btn-danger" onclick="confirmDelete('${a.id}', '${(a.activity_type || '').replace(/'/g, "\\'")}')">🗑</button>
+          </div>
+        </td>
+      </tr>`).join('');
+  }
+
+  function updateRate() {
+    const sel = document.getElementById('f_client');
+    const rate = sel.options[sel.selectedIndex]?.dataset?.rate || 0;
+    document.getElementById('f_hourly_rate').value = rate;
+    calculateCharge();
+  }
+
+  function calculateCharge() {
+    const minutes = parseFloat(document.getElementById('f_minutes').value || 0);
+    const rate = parseFloat(document.getElementById('f_hourly_rate').value || 0);
+    if (minutes > 0 && rate > 0) {
+      const charge = (minutes / 60) * rate;
+      document.getElementById('chargePreview').style.display = 'block';
+      document.getElementById('calcCharge').textContent = `${eur(charge)} (${minutes} mins × ${eur(rate)}/hr)`;
+      document.getElementById('f_charge_amount').value = charge.toFixed(2);
+    } else {
+      document.getElementById('chargePreview').style.display = 'none';
+    }
+  }
+
+  function openAdd() {
+    editingId = null;
+    document.getElementById('modalTitle').textContent = 'Log Activity';
+    clearForm();
+    document.getElementById('f_date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('actModal').classList.add('open');
+  }
+
+  function openEdit(id) {
+    const act = allActivities.find(a => a.id === id);
+    if (!act) return;
+    editingId = id;
+    document.getElementById('modalTitle').textContent = 'Edit Activity';
+    document.getElementById('f_client').value = act.client_id || '';
+    document.getElementById('f_activity_type').value = act.activity_type || 'Phone call';
+    document.getElementById('f_date').value = act.date || '';
+    document.getElementById('f_minutes').value = act.minutes || '';
+    document.getElementById('f_hourly_rate').value = act.hourly_rate || '';
+    document.getElementById('f_billable').value = act.billable ? 'true' : 'false';
+    document.getElementById('f_charge_amount').value = act.charge_amount || '';
+    document.getElementById('f_notes').value = act.notes || '';
+    calculateCharge();
+    document.getElementById('actModal').classList.add('open');
+  }
+
+  function clearForm() {
+    document.getElementById('f_client').value = '';
+    document.getElementById('f_activity_type').value = 'Phone call';
+    document.getElementById('f_date').value = '';
+    document.getElementById('f_minutes').value = '';
+    document.getElementById('f_hourly_rate').value = '';
+    document.getElementById('f_billable').value = 'true';
+    document.getElementById('f_charge_amount').value = '';
+    document.getElementById('f_notes').value = '';
+    document.getElementById('chargePreview').style.display = 'none';
+  }
+
+  function closeModal() { document.getElementById('actModal').classList.remove('open'); }
+
+  async function saveActivity() {
+    const clientId = document.getElementById('f_client').value;
+    const date = document.getElementById('f_date').value;
+    if (!clientId || !date) { alert('Client and date are required!'); return; }
+
+    const data = {
+      client_id: clientId,
+      activity_type: document.getElementById('f_activity_type').value,
+      date,
+      minutes: parseInt(document.getElementById('f_minutes').value) || 0,
+      hourly_rate: parseFloat(document.getElementById('f_hourly_rate').value) || 0,
+      billable: document.getElementById('f_billable').value === 'true',
+      charge_amount: parseFloat(document.getElementById('f_charge_amount').value) || 0,
+      notes: document.getElementById('f_notes').value.trim() || null,
+    };
+
+    try {
+      if (editingId) {
+        await sbFetch(`activity_log?id=eq.${editingId}`, { method: 'PATCH', body: JSON.stringify(data) });
+      } else {
+        data.activity_id = generateActivityId();
+        await sbFetch('activity_log', { method: 'POST', body: JSON.stringify(data) });
+      }
+      closeModal();
+      await loadData();
+    } catch (err) {
+      console.error(err);
+      alert('Error saving activity. Please try again.');
+    }
+  }
+
+  function confirmDelete(id, type) {
+    confirmAction = () => deleteActivity(id);
+    document.getElementById('confirmTitle').textContent = 'Delete Activity?';
+    document.getElementById('confirmText').textContent = `This will permanently delete this "${type}" activity. This cannot be undone.`;
+    document.getElementById('confirmModal').classList.add('open');
+  }
+
+  async function deleteActivity(id) {
+    await sbFetch(`activity_log?id=eq.${id}`, { method: 'DELETE', prefer: 'return=minimal' });
+    closeConfirm();
+    await loadData();
+  }
+
+  function closeConfirm() { document.getElementById('confirmModal').classList.remove('open'); confirmAction = null; }
+  function executeConfirm() { if (confirmAction) confirmAction(); }
+
+  document.getElementById('actModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+  document.getElementById('confirmModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeConfirm(); });
+
+  loadData();
+</script>
+</body>
+</html>
