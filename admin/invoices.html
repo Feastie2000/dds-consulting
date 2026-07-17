@@ -528,7 +528,8 @@
           <div class="actions">
             <button class="btn btn-sm btn-outline" onclick="previewInvoice('${inv.id}')">👁 View</button>
             ${inv.status === 'Draft' ? `<button class="btn btn-sm btn-amber" onclick="markSent('${inv.id}')">📤 Sent</button>` : ''}
-            ${inv.status === 'Sent' ? `<button class="btn btn-sm btn-success" onclick="markPaid('${inv.id}')">✅ Paid</button>` : ''}
+			${inv.status === 'Sent' ? `<button class="btn btn-sm btn-success" onclick="markPaid('${inv.id}')">✅ Paid</button>` : ''}
+			${inv.status === 'Sent' ? `<button class="btn btn-sm btn-outline" onclick="revertToDraft('${inv.id}')">↩ Draft</button>` : ''}
             <button class="btn btn-sm btn-danger" onclick="confirmDelete('${inv.id}', '${inv.invoice_number}')">🗑</button>
           </div>
         </td>
@@ -704,6 +705,11 @@
     await sbFetch(`invoices?id=eq.${id}`, { method: 'PATCH', body: JSON.stringify({ status: 'Paid', paid_date: new Date().toISOString().split('T')[0] }) });
     await loadData();
   }
+ 
+	async function revertToDraft(id) {
+	  await sbFetch(`invoices?id=eq.${id}`, { method: 'PATCH', body: JSON.stringify({ status: 'Draft', date_sent: null }) });
+	  await loadData();
+	}
 
   async function previewInvoice(id) {
     const inv = allInvoices.find(i => i.id === id);
