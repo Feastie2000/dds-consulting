@@ -133,6 +133,20 @@
     .appt-item-detail { font-size: .75rem; color: var(--ink-ghost); }
     .appt-item-charge { font-weight: 700; color: var(--teal); font-size: .88rem; }
 
+	/* ── ACTION SELECTOR ── */
+	.act-item {
+	  display: flex; align-items: center; gap: .8rem;
+	  padding: .7rem 1rem; border-bottom: 1px solid var(--line);
+	  cursor: pointer; transition: background .15s;
+	}
+	.act-item:last-child { border-bottom: none; }
+	.act-item:hover { background: var(--teal-pale); }
+	.act-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--teal); flex-shrink: 0; }
+	.act-item-info { flex: 1; font-size: .85rem; }
+	.act-item-name { font-weight: 600; color: var(--ink); }
+	.act-item-detail { font-size: .75rem; color: var(--ink-ghost); }
+	.act-item-charge { font-weight: 700; color: var(--teal); font-size: .88rem; }
+
     /* ── INVOICE TOTAL ── */
     .invoice-summary {
       grid-column: 1 / -1;
@@ -329,12 +343,22 @@
           <div class="appt-list" id="apptSelectorList" style="display:none"></div>
         </div>
 
+		<div class="form-section">Select Activities to Include</div>
+		<div class="appt-selector">
+		  <div id="actSelectorMsg" style="font-size:.85rem;color:var(--ink-ghost);padding:.5rem 0">Select a client to see their unbilled activities.</div>
+		  <div class="appt-list" id="actSelectorList" style="display:none"></div>
+		</div>
+
         <div class="form-section">Invoice Total</div>
         <div class="invoice-summary">
           <div>
-            <div class="inv-sum-label">Appointment Charges</div>
-            <div class="inv-sum-value" id="sumAppt">€0.00</div>
-          </div>
+		  <div class="inv-sum-label">Appointment Charges</div>
+		  <div class="inv-sum-value" id="sumAppt">€0.00</div>
+		</div>
+		<div>
+		  <div class="inv-sum-label">Activity Charges</div>
+		  <div class="inv-sum-value" id="sumAct">€0.00</div>
+		</div>
           <div>
             <div class="inv-sum-label">Travel Fee</div>
             <div class="inv-sum-value" id="sumTravel">€0.00</div>
@@ -517,31 +541,57 @@
     if (!clientId) {
       document.getElementById('apptSelectorMsg').style.display = 'block';
       document.getElementById('apptSelectorList').style.display = 'none';
+      document.getElementById('actSelectorMsg').style.display = 'block';
+      document.getElementById('actSelectorList').style.display = 'none';
       return;
     }
 
-    const appts = await sbFetch(`appointments?client_id=eq.${clientId}&ready_for_invoice=eq.true&select=*`);
-    readyAppointments = appts || [];
+    // Load appointments and activities in parallel
+    const [appts, acts] = await Promise.all([
+      sbFetch(`appointments?client_id=eq.${clientId}&ready_for_invoice=eq.true&select=*`),
+      sbFetch(`activity_log?client_id=eq.${clientId}&billable=eq.true&select=*`)
+    ]);
 
+    readyAppointments = appts || [];
+    const unbilledActs = (acts || []).filter(a => !a.invoice_id);
+
+    // ── APPOINTMENTS ──
     document.getElementById('apptSelectorMsg').style.display = 'none';
-    const list = document.getElementById('apptSelectorList');
+    const apptList = document.getElementById('apptSelectorList');
 
     if (readyAppointments.length === 0) {
-      list.innerHTML = '<div style="padding:1rem;font-size:.85rem;color:var(--ink-ghost)">No appointments ready to invoice for this client.</div>';
-      list.style.display = 'block';
-      return;
+      apptList.innerHTML = '<div style="padding:1rem;font-size:.85rem;color:var(--ink-ghost)">No appointments ready to invoice for this client.</div>';
+    } else {
+      apptList.innerHTML = readyAppointments.map(a => `
+        <div class="appt-item" onclick="toggleAppt('${a.id}')">
+          <input type="checkbox" id="appt_${a.id}" value="${a.id}" data-charge="${a.appointment_charge || 0}" onchange="updateTotal()" onclick="event.stopPropagation()"/>
+          <div class="appt-item-info">
+            <div class="appt-item-name">${a.service_type || 'Appointment'} · ${fmtDate(a.date)}</div>
+            <div class="appt-item-detail">${a.appointment_id} · ${a.hours_worked || 0}h</div>
+          </div>
+          <div class="appt-item-charge">${eur(a.appointment_charge)}</div>
+        </div>`).join('');
     }
+    apptList.style.display = 'block';
 
-    list.style.display = 'block';
-    list.innerHTML = readyAppointments.map(a => `
-      <div class="appt-item" onclick="toggleAppt('${a.id}')">
-        <input type="checkbox" id="appt_${a.id}" value="${a.id}" data-charge="${a.appointment_charge || 0}" onchange="updateTotal()" onclick="event.stopPropagation()"/>
-        <div class="appt-item-info">
-          <div class="appt-item-name">${a.service_type || 'Appointment'} · ${fmtDate(a.date)}</div>
-          <div class="appt-item-detail">${a.appointment_id} · ${a.hours_worked || 0}h</div>
-        </div>
-        <div class="appt-item-charge">${eur(a.appointment_charge)}</div>
-      </div>`).join('');
+    // ── ACTIVITIES ──
+    document.getElementById('actSelectorMsg').style.display = 'none';
+    const actList = document.getElementById('actSelectorList');
+
+    if (unbilledActs.length === 0) {
+      actList.innerHTML = '<div style="padding:1rem;font-size:.85rem;color:var(--ink-ghost)">No unbilled activities for this client.</div>';
+    } else {
+      actList.innerHTML = unbilledActs.map(a => `
+        <div class="appt-item" onclick="toggleAct('${a.id}')">
+          <input type="checkbox" id="act_${a.id}" value="${a.id}" data-charge="${a.charge_amount || 0}" onchange="updateTotal()" onclick="event.stopPropagation()"/>
+          <div class="appt-item-info">
+            <div class="appt-item-name">${a.activity_type || 'Activity'} · ${fmtDate(a.date)}</div>
+            <div class="appt-item-detail">${a.activity_id || ''} · ${a.minutes || 0} mins${a.notes ? ' · ' + a.notes : ''}</div>
+          </div>
+          <div class="appt-item-charge">${eur(a.charge_amount)}</div>
+        </div>`).join('');
+    }
+    actList.style.display = 'block';
 
     updateTotal();
   }
@@ -552,15 +602,26 @@
     updateTotal();
   }
 
+  function toggleAct(id) {
+    const cb = document.getElementById(`act_${id}`);
+    cb.checked = !cb.checked;
+    updateTotal();
+  }
+
   function updateTotal() {
     const travel = parseFloat(document.getElementById('f_travel_fee').value || 0);
     let apptTotal = 0;
+    let actTotal = 0;
     document.querySelectorAll('#apptSelectorList input[type="checkbox"]:checked').forEach(cb => {
       apptTotal += parseFloat(cb.dataset.charge || 0);
     });
+    document.querySelectorAll('#actSelectorList input[type="checkbox"]:checked').forEach(cb => {
+      actTotal += parseFloat(cb.dataset.charge || 0);
+    });
     document.getElementById('sumAppt').textContent = eur(apptTotal);
+    document.getElementById('sumAct').textContent = eur(actTotal);
     document.getElementById('sumTravel').textContent = eur(travel);
-    document.getElementById('sumTotal').textContent = eur(apptTotal + travel);
+    document.getElementById('sumTotal').textContent = eur(apptTotal + actTotal + travel);
   }
 
   function openCreateInvoice() {
@@ -575,6 +636,8 @@
     document.getElementById('f_notes').value = '';
     document.getElementById('apptSelectorMsg').style.display = 'block';
     document.getElementById('apptSelectorList').style.display = 'none';
+    document.getElementById('actSelectorMsg').style.display = 'block';
+    document.getElementById('actSelectorList').style.display = 'none';
     updateTotal();
     document.getElementById('invoiceModal').classList.add('open');
   }
@@ -586,9 +649,11 @@
     if (!clientId) { alert('Please select a client!'); return; }
 
     const selectedAppts = [...document.querySelectorAll('#apptSelectorList input[type="checkbox"]:checked')];
+    const selectedActs = [...document.querySelectorAll('#actSelectorList input[type="checkbox"]:checked')];
     const apptCharges = selectedAppts.reduce((s, cb) => s + parseFloat(cb.dataset.charge || 0), 0);
+    const actCharges = selectedActs.reduce((s, cb) => s + parseFloat(cb.dataset.charge || 0), 0);
     const travelFee = parseFloat(document.getElementById('f_travel_fee').value || 0);
-    const total = apptCharges + travelFee;
+    const total = apptCharges + actCharges + travelFee;
 
     const data = {
       invoice_number: document.getElementById('f_invoice_number').value,
@@ -597,7 +662,7 @@
       travel_fee: travelFee,
       notes: document.getElementById('f_notes').value.trim() || null,
       appointment_charges: apptCharges,
-      activity_charges: 0,
+      activity_charges: actCharges,
       total_due: total,
       due_date: document.getElementById('f_due_date').value || null,
     };
@@ -614,6 +679,12 @@
         for (const cb of selectedAppts) {
           await sbFetch(`appointments?id=eq.${cb.value}`, { method: 'PATCH', body: JSON.stringify({ ready_for_invoice: false }) });
         }
+      }
+
+      // Link activities
+      if (selectedActs.length > 0) {
+        const actLinks = selectedActs.map(cb => ({ invoice_id: invoiceId, activity_id: cb.value }));
+        await sbFetch('invoice_activities', { method: 'POST', body: JSON.stringify(actLinks) });
       }
 
       closeModal();
@@ -638,8 +709,11 @@
     const inv = allInvoices.find(i => i.id === id);
     if (!inv) return;
 
-    // Load linked appointments
-    const links = await sbFetch(`invoice_appointments?invoice_id=eq.${id}&select=appointment_id,appointments(service_type,date,hours_worked,appointment_charge,support_type)`);
+    // Load linked appointments and activities in parallel
+    const [links, actLinks] = await Promise.all([
+      sbFetch(`invoice_appointments?invoice_id=eq.${id}&select=appointment_id,appointments(service_type,date,hours_worked,appointment_charge,support_type)`),
+      sbFetch(`invoice_activities?invoice_id=eq.${id}&select=activity_id,activity_log(activity_type,date,minutes,charge_amount,notes)`)
+    ]);
 
     const apptRows = (links || []).map(l => {
       const a = l.appointments;
@@ -648,6 +722,16 @@
         <td>${fmtDate(a?.date)}</td>
         <td>${a?.hours_worked || 0}h (${a?.support_type || ''})</td>
         <td style="text-align:right;font-weight:600">${eur(a?.appointment_charge)}</td>
+      </tr>`;
+    }).join('');
+
+    const actRows = (actLinks || []).map(l => {
+      const a = l.activity_log;
+      return `<tr>
+        <td>${a?.activity_type || 'Activity'}${a?.notes ? ' — ' + a.notes : ''}</td>
+        <td>${fmtDate(a?.date)}</td>
+        <td>${a?.minutes || 0} mins</td>
+        <td style="text-align:right;font-weight:600">${eur(a?.charge_amount)}</td>
       </tr>`;
     }).join('');
 
@@ -699,6 +783,7 @@
           </thead>
           <tbody>
             ${apptRows}
+            ${actRows}
             ${parseFloat(inv.travel_fee || 0) > 0 ? `
             <tr>
               <td>Travel Fee</td>
@@ -710,7 +795,8 @@
         </table>
 
         <div class="pdf-totals">
-          <div class="pdf-total-row"><span>Subtotal</span><span>${eur(inv.appointment_charges)}</span></div>
+          ${parseFloat(inv.appointment_charges || 0) > 0 ? `<div class="pdf-total-row"><span>Appointment Charges</span><span>${eur(inv.appointment_charges)}</span></div>` : ''}
+          ${parseFloat(inv.activity_charges || 0) > 0 ? `<div class="pdf-total-row"><span>Activity Charges</span><span>${eur(inv.activity_charges)}</span></div>` : ''}
           ${parseFloat(inv.travel_fee || 0) > 0 ? `<div class="pdf-total-row"><span>Travel Fee</span><span>${eur(inv.travel_fee)}</span></div>` : ''}
           <div class="pdf-total-final"><span>Total Due</span><span>${eur(inv.total_due)}</span></div>
         </div>
@@ -739,6 +825,7 @@
 
   async function deleteInvoice(id) {
     await sbFetch(`invoice_appointments?invoice_id=eq.${id}`, { method: 'DELETE', prefer: 'return=minimal' });
+    await sbFetch(`invoice_activities?invoice_id=eq.${id}`, { method: 'DELETE', prefer: 'return=minimal' });
     await sbFetch(`invoices?id=eq.${id}`, { method: 'DELETE', prefer: 'return=minimal' });
     closeConfirm();
     await loadData();
