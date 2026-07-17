@@ -549,13 +549,15 @@
     }
 
     // Load appointments and activities in parallel
-    const [appts, acts] = await Promise.all([
-      sbFetch(`appointments?client_id=eq.${clientId}&ready_for_invoice=eq.true&select=*`),
-      sbFetch(`activity_log?client_id=eq.${clientId}&billable=eq.true&select=*`)
+    const [appts, acts, linkedActs] = await Promise.all([
+    sbFetch(`appointments?client_id=eq.${clientId}&ready_for_invoice=eq.true&select=*`),
+    sbFetch(`activity_log?client_id=eq.${clientId}&billable=eq.true&select=*`),
+    editingId ? sbFetch(`invoice_activities?invoice_id=eq.${editingId}&select=activity_id`) : Promise.resolve([])
     ]);
 
     readyAppointments = appts || [];
-    const unbilledActs = (acts || []).filter(a => !a.invoice_id);
+	const linkedActIds = (linkedActs || []).map(l => l.activity_id);
+	const unbilledActs = (acts || []).filter(a => !a.invoice_id && !linkedActIds.includes(a.id));
 
     // ── APPOINTMENTS ──
     document.getElementById('apptSelectorMsg').style.display = 'none';
