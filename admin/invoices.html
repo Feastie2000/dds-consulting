@@ -527,6 +527,7 @@
         <td>
           <div class="actions">
             <button class="btn btn-sm btn-outline" onclick="previewInvoice('${inv.id}')">👁 View</button>
+            ${inv.status === 'Draft' ? `<button class="btn btn-sm btn-outline" onclick="editInvoice('${inv.id}')">✏️ Edit</button>` : ''}
             ${inv.status === 'Draft' ? `<button class="btn btn-sm btn-amber" onclick="markSent('${inv.id}')">📤 Sent</button>` : ''}
 			${inv.status === 'Sent' ? `<button class="btn btn-sm btn-success" onclick="markPaid('${inv.id}')">✅ Paid</button>` : ''}
 			${inv.status === 'Sent' ? `<button class="btn btn-sm btn-outline" onclick="revertToDraft('${inv.id}')">↩ Draft</button>` : ''}
@@ -669,8 +670,20 @@
     };
 
     try {
-      const saved = await sbFetch('invoices', { method: 'POST', body: JSON.stringify(data) });
-      const invoiceId = saved[0].id;
+      // If editing, delete old links first
+      if (editingId) {
+        await sbFetch(`invoice_appointments?invoice_id=eq.${editingId}`, { method: 'DELETE', prefer: 'return=minimal' });
+        await sbFetch(`invoice_activities?invoice_id=eq.${editingId}`, { method: 'DELETE', prefer: 'return=minimal' });
+      }
+
+      let invoiceId;
+      if (editingId) {
+        await sbFetch(`invoices?id=eq.${editingId}`, { method: 'PATCH', body: JSON.stringify(data) });
+        invoiceId = editingId;
+      } else {
+        const saved = await sbFetch('invoices', { method: 'POST', body: JSON.stringify(data) });
+        invoiceId = saved[0].id;
+      }
 
       // Link appointments
       if (selectedAppts.length > 0) {
@@ -694,6 +707,31 @@
       console.error(err);
       alert('Error saving invoice. Please try again.');
     }
+  }
+
+  async function revertToDraft(id) {
+    await sbFetch(`invoices?id=eq.${id}`, { method: 'PATCH', body: JSON.stringify({ status: 'Draft', date_sent: null }) });
+    await loadData();
+  }
+
+  async function editInvoice(id) {
+    const inv = allInvoices.find(i => i.id === id);
+    if (!inv) return;
+    editingId = id;
+    document.getElementById('modalTitle').textContent = 'Edit Invoice';
+    document.getElementById('f_invoice_number').value = inv.invoice_number;
+    document.getElementById('f_client').value = inv.client_id;
+    const due = new Date();
+    due.setDate(due.getDate() + 14);
+    document.getElementById('f_due_date').value = inv.due_date || due.toISOString().split('T')[0];
+    document.getElementById('f_travel_fee').value = inv.travel_fee || '';
+    document.getElementById('f_notes').value = inv.notes || '';
+    document.getElementById('actSelectorMsg').style.display = 'block';
+    document.getElementById('actSelectorList').style.display = 'none';
+    document.getElementById('apptSelectorMsg').style.display = 'block';
+    document.getElementById('apptSelectorList').style.display = 'none';
+    document.getElementById('invoiceModal').classList.add('open');
+    await loadReadyAppointments();
   }
 
   async function markSent(id) {
