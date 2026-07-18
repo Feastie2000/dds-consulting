@@ -408,7 +408,7 @@
         currentFilter === 'All' ? true :
         currentFilter === 'billable' ? a.billable === true :
         currentFilter === 'non-billable' ? a.billable === false :
-        currentFilter === 'unbilled' ? (a.billable === true && !a.invoice_id) : true;
+        currentFilter === 'unbilled' ? (a.billable === true && !a.invoiced) : true;
       const matchSearch = !search ||
         (a.clients?.name || '').toLowerCase().includes(search) ||
         (a.activity_type || '').toLowerCase().includes(search) ||

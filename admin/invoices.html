@@ -697,10 +697,13 @@
         }
       }
 
-      // Link activities
+      // Link activities and mark as invoiced
       if (selectedActs.length > 0) {
         const actLinks = selectedActs.map(cb => ({ invoice_id: invoiceId, activity_id: cb.value }));
         await sbFetch('invoice_activities', { method: 'POST', body: JSON.stringify(actLinks) });
+        for (const cb of selectedActs) {
+          await sbFetch(`activity_log?id=eq.${cb.value}`, { method: 'PATCH', body: JSON.stringify({ invoiced: true }) });
+        }
       }
 
       closeModal();
