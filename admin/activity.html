@@ -367,7 +367,7 @@
 
       // Stats
       const billable = allActivities.filter(a => a.billable);
-      const unbilled = allActivities.filter(a => a.billable && !a.invoice_id);
+      const unbilled = allActivities.filter(a => a.billable && !a.invoiced);
       const totalMins = allActivities.reduce((s, a) => s + (a.minutes || 0), 0);
       const unbilledAmt = unbilled.reduce((s, a) => s + parseFloat(a.charge_amount || 0), 0);
 
@@ -439,7 +439,10 @@
         <td>${fmtMins(a.minutes || 0)}</td>
         <td>${eur(a.hourly_rate)}/hr</td>
         <td><strong>${eur(a.charge_amount)}</strong></td>
-        <td><span class="badge ${a.billable ? 'badge-green' : 'badge-grey'}">${a.billable ? 'Yes' : 'No'}</span></td>
+		<td>
+			<span class="badge ${a.billable ? 'badge-green' : 'badge-grey'}">${a.billable ? 'Yes' : 'No'}</span>
+			${a.invoiced ? '<br><span class="badge badge-teal" style="margin-top:.3rem">Invoiced</span>' : ''}
+		</td>
         <td style="max-width:180px;font-size:.8rem">${a.notes || '—'}</td>
         <td>
           <div class="actions">
