@@ -21,6 +21,7 @@ secrets.*
 
 # Environment variables
 .env
+env
 .env.local
 .env.production
 
