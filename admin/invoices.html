@@ -200,11 +200,10 @@
     .confirm-actions { display: flex; gap: .8rem; justify-content: center; }
 
     @media print {
-      .sidebar, .main > *:not(.print-area) { display: none !important; }
-      .main { margin: 0; padding: 0; }
-      .print-area { display: block !important; }
-      .pdf-preview { border: none; padding: 1rem; }
-    }
+		body > * { display: none !important; }
+		#printArea { display: block !important; position: fixed; top: 0; left: 0; width: 100%; }
+		.pdf-preview { border: none; box-shadow: none; }
+	}
   </style>
   
   <!-- Favicons -->
@@ -389,7 +388,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closePdfModal()">Close</button>
-      <button class="btn btn-primary" onclick="window.print()">🖨️ Print / Save as PDF</button>
+      <button class="btn btn-primary" onclick="printInvoice()">🖨️ Print / Save as PDF</button>
     </div>
   </div>
 </div>
@@ -888,6 +887,52 @@
   document.getElementById('confirmModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeConfirm(); });
 
   loadData();
+
+  function printInvoice() {
+    const content = document.getElementById('pdfContent').innerHTML;
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Invoice</title>
+        <style>
+          * { box-sizing: border-box; margin: 0; padding: 0; }
+          body { font-family: 'Segoe UI', sans-serif; color: #071f1f; padding: 2rem; }
+          .pdf-preview { max-width: 740px; margin: 0 auto; }
+          .pdf-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2.5rem; }
+          .pdf-logo-area img { width: 60px; height: 60px; border-radius: 10px; }
+          .pdf-company { font-size: .85rem; color: #3d5452; margin-top: .5rem; }
+          .pdf-invoice-label { font-size: 2rem; font-weight: 700; color: #0d4d4c; }
+          .pdf-invoice-num { font-size: 1rem; color: #8c9884; font-family: monospace; }
+          .pdf-to { margin-bottom: 2rem; }
+          .pdf-label { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #8c9884; margin-bottom: .4rem; }
+          .pdf-client-name { font-size: 1.1rem; font-weight: 700; color: #071f1f; }
+          .pdf-dates { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; padding: 1rem; background: #f4f6f4; border-radius: 8px; }
+          .pdf-date-label { font-size: .72rem; color: #8c9884; margin-bottom: .2rem; }
+          .pdf-date-val { font-size: .9rem; font-weight: 600; color: #071f1f; }
+          .pdf-items { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+          .pdf-items th { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #8c9884; padding: .6rem .8rem; text-align: left; border-bottom: 2px solid #d4ddd6; }
+          .pdf-items td { padding: .8rem; font-size: .88rem; color: #3d5452; border-bottom: 1px solid #d4ddd6; }
+          .pdf-items tr:last-child td { border-bottom: none; }
+          .pdf-totals { margin-left: auto; width: 260px; }
+          .pdf-total-row { display: flex; justify-content: space-between; padding: .4rem 0; font-size: .88rem; color: #3d5452; }
+          .pdf-total-final { display: flex; justify-content: space-between; padding: .8rem; background: #0d4d4c; color: #fff; border-radius: 8px; font-weight: 700; font-size: 1rem; margin-top: .5rem; }
+          .pdf-footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #d4ddd6; font-size: .78rem; color: #8c9884; text-align: center; }
+        </style>
+      </head>
+      <body>
+        ${content}
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 500);
+  }
 </script>
 </body>
 </html>
