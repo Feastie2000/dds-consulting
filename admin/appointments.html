@@ -358,9 +358,11 @@
   const fmtTime = t => t ? new Date(t).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '';
 
   function generateApptId() {
-    const num = allAppointments.length + 1;
-    return `DDS-AP-${num}`;
-  }
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let suffix = '';
+  for (let i = 0; i < 4; i++) suffix += chars[Math.floor(Math.random() * chars.length)];
+  return `DDS-AP-${suffix}`;
+}
 
   async function loadData() {
     try {
